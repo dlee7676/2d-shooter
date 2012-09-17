@@ -36,9 +36,13 @@ private:
 	LPD3DXSPRITE gameSprites;
 	LPDIRECT3DTEXTURE9 gameTexture;
 	LPDIRECT3DTEXTURE9 laserTexture;
+	LPDIRECT3DTEXTURE9 levelBackgroundTexture;
 	D3DXVECTOR3 playerPos;
 	D3DXVECTOR3 moves;
+	D3DXVECTOR3 bgPos;
 	D3DXMATRIX spriteManip;
+	RECT bgTop;
+	RECT bgBottom;
 	RECT player;
 	RECT laser;
 	RECT kaguya;
@@ -48,7 +52,7 @@ private:
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
-	int leveltime;
+	int leveltime, offset;
 
 public:
 	void setHwnd(HWND _hwnd);

@@ -107,8 +107,26 @@ void Game::render() {
 			break;
 		}
 		case 1: {
-			// draw player
 			gameSprites->Begin(D3DXSPRITE_ALPHABLEND);
+
+			// draw background
+			offset++;
+			if (offset >= 1000)
+				offset = 0;
+			D3DXVECTOR3 bgPos(0,0,0);
+			bgTop.left = 0;
+			bgTop.right = SCREEN_WIDTH;
+			bgTop.top = 1000 - offset;
+			bgTop.bottom = 1000;
+			gameSprites->Draw(levelBackgroundTexture, &bgTop, NULL, &bgPos, 0xFFFFFFFF);
+			bgBottom.left = 0;
+			bgBottom.right = SCREEN_WIDTH;
+			bgBottom.top = 0;
+			bgBottom.bottom = SCREEN_HEIGHT - offset;
+			bgPos.y = offset;
+			gameSprites->Draw(levelBackgroundTexture, &bgBottom, NULL, &bgPos, 0xFFFFFFFF);
+
+			// draw player
 			gameSprites->Draw(gameTexture, &player, NULL, &playerPos, 0xFFFFFFFF);
 
 			// draw player bullets
@@ -204,8 +222,13 @@ void Game::initLevel1() {
 		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
 		return;
 	}
+	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("forest.png"), &levelBackgroundTexture))) {
+		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+		return;
+	}
 	playerPos.x = SCREEN_WIDTH/2; playerPos.y = SCREEN_HEIGHT*8/10; playerPos.z = 0;
 	setRects();
+	offset = 0;
 	playerBullets = new Bullet[100];
 	enemyBullets = new Bullet[1000];
 	enemies = new Enemy[100];
@@ -238,44 +261,47 @@ void Game::level1Script() {
 // events
 	if (leveltime == 150) {
 		enemies[0].setPos(50,-20, 0);
+		enemies[0].setActive(true);
 		enemies[1].setPos(100, -22, 0);
+		enemies[1].setActive(true);
 		enemies[2].setPos(125, -30, 0);
+		enemies[2].setActive(true);
 	}
 	if (leveltime > 150) {
 		eventType1(0, 3, 300, kaguya);
 	}
 	if (leveltime == 300) {
 		enemies[3].setPos(650,-40, 0);
+		enemies[3].setActive(true);
 		enemies[4].setPos(670, -35, 0);
+		enemies[4].setActive(true);
 		enemies[5].setPos(700, -25, 0);
+		enemies[5].setActive(true);
 		enemies[6].setPos(725, -20, 0);
-	}
-	if (leveltime > 300) {
-		eventType1(3, 7, 225, bucket);
-	}
-	if (leveltime == 300) {
-		enemies[3].setPos(650,-40, 0);
-		enemies[4].setPos(670, -35, 0);
-		enemies[5].setPos(700, -25, 0);
-		enemies[6].setPos(725, -20, 0);
+		enemies[6].setActive(true);
 	}
 	if (leveltime > 300) {
 		eventType1(3, 7, 225, bucket);
 	}
 	if (leveltime == 350) {
 		enemies[7].setPos(200,-40, 0);
+		enemies[7].setActive(true);
 		enemies[8].setPos(300, -35, 0);
+		enemies[8].setActive(true);
 		enemies[9].setPos(400, -25, 0);
+		enemies[9].setActive(true);
 		enemies[10].setPos(500, -20, 0);
+		enemies[10].setActive(true);
 	}
 	if (leveltime > 350) {
 		eventType1(7, 11, 225, bucket);
 	}
 	if (leveltime == 800) {
 		enemies[7].setPos(350, -30, 0);
+		enemies[7].setActive(true);
 	}
 	if (leveltime > 800) {
-		eventType1(7, 8, 50, fairy);
+		eventType1(7, 8, 100, fairy);
 	}
 }
 
@@ -286,13 +312,16 @@ void Game::eventType1(int start, int end, int dest, RECT sprite) {
 		if (enemies[i].getPos(1) >= 0) {
 			gameSprites->Draw(gameTexture, &sprite, NULL, &enemies[i].getPos(), 0xFFFFFFFF);
 		}
+		if (enemies[i].getPos(1) < 0 && enemies[i].isActive()) 
+			enemies[i].setAction(0);
 		switch(action) {
 			case 0: {
 				moves.y = 5;
 				enemies[i].moveTo(dest - 2*i, moves);
+				enemies[i].setWaitTime(0);
 				if (enemies[i].getCooldown() <= 0) {
 					enemies[i].aimFire(enemyBullets, playerPos, 1000, i);
-					enemies[i].setCooldown(3);
+					enemies[i].setCooldown(1);
 				}
 				else enemies[i].setCooldown(enemies[i].getCooldown() - 1);
 				if (enemies[i].getPos(1) >= dest - 2*i)
@@ -308,6 +337,8 @@ void Game::eventType1(int start, int end, int dest, RECT sprite) {
 			case 2: {
 				moves.y = -5;
 				enemies[i].moveTo(-5, moves);
+				if (enemies[i].getPos(1) < 0)
+					enemies[i].setActive(false);
 				break;
 			}
 		}
