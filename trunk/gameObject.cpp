@@ -4,6 +4,17 @@ GameObject::GameObject() :pos(0,0,0), active(false) {
 
 }
 
+void GameObject::init(int x, int y, int z, RECT bounds_) {
+	pos.x = x;
+	pos.y = y;
+	pos.z = z;
+	bounds.left = 0;
+	bounds.top = 0;
+	bounds.right = bounds_.right - bounds_.left;
+	bounds.bottom = bounds_.bottom - bounds_.top;
+	active = true;
+}
+
 bool GameObject::isActive() {
 	if (active)
 		return true;
@@ -45,9 +56,35 @@ void GameObject::move(int x, int y, int z) {
 
 void GameObject::moveTo(int dest, D3DXVECTOR3 rate) {
 	if (dest > 0)
-		if (this->getPos(1) < dest) 
+		if (pos.y < dest) 
 			this->move(rate.x,rate.y,rate.z);
 	if (dest < 0)
-		if (this->getPos(1) > dest) 
+		if (pos.y > dest) 
 			this->move(rate.x,rate.y,rate.z);
+}
+
+void GameObject::setBounds(RECT bounds_) {
+	bounds.left = 0;
+	bounds.top = 0;
+	bounds.right = bounds_.right - bounds_.left;
+	bounds.bottom = bounds_.bottom - bounds_.top;
+}
+
+RECT GameObject::getBounds() {
+	return bounds;
+}
+	
+bool GameObject::inBounds(GameObject test) {
+	RECT testRect = test.getBounds();
+	if (testRect.right + test.getPos(0) < bounds.left + pos.x || testRect.bottom + test.getPos(1) < bounds.top + pos.y || 
+		testRect.left + test.getPos(0) > bounds.right + pos.x || testRect.top + test.getPos(1) > bounds.bottom + pos.y)
+		return false;
+	else return true;
+}
+
+bool GameObject::inBounds(RECT test, int x, int y) {
+	if (test.right + x < bounds.left + pos.x || test.bottom + y < bounds.top + pos.y || 
+		test.left + x > bounds.right + pos.x || test.top + y > bounds.bottom + pos.y)
+		return false;
+	else return true;
 }
