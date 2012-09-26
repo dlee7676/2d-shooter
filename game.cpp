@@ -75,6 +75,7 @@ void Game::handleInput() {
 					if (!playerBullets[i].isActive()) {
 						playerBullets[i].setActive(true);
 						playerBullets[i].setPos(playerPos.x, playerPos.y, playerPos.z);
+						playerBullets[i].setBounds(laser);
 						break;
 					}
 				}
@@ -147,6 +148,10 @@ void Game::render() {
 			int startX, startY;
 			for (int i = 0; i < 1000; i++) {
 				if (enemyBullets[i].isActive()) {
+					if (enemyBullets[i].inBounds(playerBox, playerPos.x + 10, playerPos.y + 10)) {
+						playerPos.x = 600;
+						playerPos.y = 600;
+					}
 					angle = atan(moveRate.y/moveRate.x);
 					D3DXMatrixTranslation(&translation1,-1*enemyBullets[i].getPos(0),-1*enemyBullets[i].getPos(1),0);
 					D3DXMatrixRotationZ(&rotation, angle+PI/2);
@@ -158,7 +163,7 @@ void Game::render() {
 					moveRate = enemyBullets[i].getTarget() - enemyBullets[i].getStartPos();
 					D3DXVec3Normalize(&moveRate, &moveRate);
 					enemyBullets[i].move(moveRate.x*3, moveRate.y*3, moveRate.z*3); 
-					if (enemyBullets[i].getPos(1) > 600)
+					if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < -10)
 						enemyBullets[i].setActive(false);
 					D3DXMatrixIdentity(&spriteManip);
 					gameSprites->SetTransform(&spriteManip);
@@ -239,6 +244,10 @@ void Game::setRects() {
 	player.right=28;
 	player.top=0;
 	player.bottom=43;
+	playerBox.left = 0;
+	playerBox.right=player.right/2;
+	playerBox.top = 0;
+	playerBox.bottom=player.left/2;
 	laser.left=0;
 	laser.right=12;
 	laser.top=0;
@@ -260,45 +269,33 @@ void Game::setRects() {
 void Game::level1Script() {
 // events
 	if (leveltime == 150) {
-		enemies[0].setPos(50,-20, 0);
-		enemies[0].setActive(true);
-		enemies[1].setPos(100, -22, 0);
-		enemies[1].setActive(true);
-		enemies[2].setPos(125, -30, 0);
-		enemies[2].setActive(true);
+		enemies[0].init(50,-20, 0, kaguya);
+		enemies[1].init(100, -22, 0, kaguya);
+		enemies[2].init(125, -30, 0, kaguya);
 	}
 	if (leveltime > 150) {
 		eventType1(0, 3, 300, kaguya);
 	}
 	if (leveltime == 300) {
-		enemies[3].setPos(650,-40, 0);
-		enemies[3].setActive(true);
-		enemies[4].setPos(670, -35, 0);
-		enemies[4].setActive(true);
-		enemies[5].setPos(700, -25, 0);
-		enemies[5].setActive(true);
-		enemies[6].setPos(725, -20, 0);
-		enemies[6].setActive(true);
+		enemies[3].init(650,-40, 0, bucket);
+		enemies[4].init(670, -35, 0, bucket);
+		enemies[5].init(700, -25, 0, bucket);
+		enemies[6].init(725, -20, 0, bucket);
 	}
 	if (leveltime > 300) {
 		eventType1(3, 7, 225, bucket);
 	}
 	if (leveltime == 350) {
-		enemies[7].setPos(200,-40, 0);
-		enemies[7].setActive(true);
-		enemies[8].setPos(300, -35, 0);
-		enemies[8].setActive(true);
-		enemies[9].setPos(400, -25, 0);
-		enemies[9].setActive(true);
-		enemies[10].setPos(500, -20, 0);
-		enemies[10].setActive(true);
+		enemies[7].init(200,-40, 0, bucket);
+		enemies[8].init(300, -35, 0, bucket);
+		enemies[9].init(400, -25, 0, bucket);
+		enemies[10].init(500, -20, 0, bucket);
 	}
 	if (leveltime > 350) {
 		eventType1(7, 11, 225, bucket);
 	}
 	if (leveltime == 800) {
-		enemies[7].setPos(350, -30, 0);
-		enemies[7].setActive(true);
+		enemies[7].init(350, -30, 0, fairy);
 	}
 	if (leveltime > 800) {
 		eventType1(7, 8, 100, fairy);
@@ -314,13 +311,21 @@ void Game::eventType1(int start, int end, int dest, RECT sprite) {
 		}
 		if (enemies[i].getPos(1) < 0 && enemies[i].isActive()) 
 			enemies[i].setAction(0);
+		for (int j = 0; j < 100; j++) {
+			if (enemies[i].inBounds(playerBullets[j]) && playerBullets[j].isActive() && enemies[i].getPos(1) > 0) {
+				enemies[i].setActive(false);
+				enemies[i].setPos(-100, -100, -100);
+				playerBullets[j].setActive(false);
+				playerBullets[j].setPos(-100,-100,-100);
+			}
+		}
 		switch(action) {
 			case 0: {
 				moves.y = 5;
 				enemies[i].moveTo(dest - 2*i, moves);
 				enemies[i].setWaitTime(0);
 				if (enemies[i].getCooldown() <= 0) {
-					enemies[i].aimFire(enemyBullets, playerPos, 1000, i);
+					enemies[i].aimFire(enemyBullets, playerPos, 1000, i, laser);
 					enemies[i].setCooldown(1);
 				}
 				else enemies[i].setCooldown(enemies[i].getCooldown() - 1);

@@ -44,6 +44,7 @@ private:
 	RECT bgTop;
 	RECT bgBottom;
 	RECT player;
+	RECT playerBox;
 	RECT laser;
 	RECT kaguya;
 	RECT bucket;
@@ -65,9 +66,6 @@ public:
 	void initMenuScreen();
 	void initLevel1();
 	void setRects();
-	void event1();
-	void event2();
-	void event3();
 	void level1Script();
 	void eventType1(int start, int end, int dest, RECT sprite);
 };

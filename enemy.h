@@ -19,7 +19,7 @@ public:
 	void setCooldown(int time);
 	int getAction();
 	void setAction(int command);
-	void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, int size, int owner);
+	void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, int size, int owner, RECT bounds);
 };
 
 #endif
