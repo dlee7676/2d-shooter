@@ -1,6 +1,6 @@
 #include "gameObject.h"
 
-GameObject::GameObject() :pos(0,0,0), active(false) {
+GameObject::GameObject() :pos(0,0,0), active(false), exploding(false) {
 
 }
 
@@ -8,11 +8,17 @@ void GameObject::init(int x, int y, int z, RECT bounds_) {
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
+	startPos.x = x;
+	startPos.y = y;
+	startPos.z = z;
+	s = 0.0f;
 	bounds.left = 0;
 	bounds.top = 0;
 	bounds.right = bounds_.right - bounds_.left;
 	bounds.bottom = bounds_.bottom - bounds_.top;
 	active = true;
+	exploding = false;
+	animTime = 10;
 }
 
 bool GameObject::isActive() {
@@ -63,6 +69,22 @@ void GameObject::moveTo(int dest, D3DXVECTOR3 rate) {
 			this->move(rate.x,rate.y,rate.z);
 }
 
+D3DXVECTOR3 GameObject::getStartPos() {
+	return startPos;
+}
+
+void GameObject::setStartPos(D3DXVECTOR3 _startPos) {
+	startPos = _startPos;
+}
+
+float GameObject::getS() {
+	return s;
+}
+
+void GameObject::setS(float s_) {
+	s = s_;
+}
+
 void GameObject::setBounds(RECT bounds_) {
 	bounds.left = 0;
 	bounds.top = 0;
@@ -87,4 +109,20 @@ bool GameObject::inBounds(RECT test, int x, int y) {
 		test.left + x > bounds.right + pos.x || test.top + y > bounds.bottom + pos.y)
 		return false;
 	else return true;
+}
+
+bool GameObject::isExploding() {
+	return exploding;
+}
+
+void GameObject::setExploding(bool exploding_) {
+	exploding = exploding_;
+}
+
+int GameObject::getAnimTime() {
+	return animTime;
+}
+
+void GameObject::setAnimTime(int time) {
+	animTime = time;
 }

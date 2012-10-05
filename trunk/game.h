@@ -36,11 +36,14 @@ private:
 	LPD3DXSPRITE gameSprites;
 	LPDIRECT3DTEXTURE9 gameTexture;
 	LPDIRECT3DTEXTURE9 laserTexture;
+	LPDIRECT3DTEXTURE9 explosionTexture;
 	LPDIRECT3DTEXTURE9 levelBackgroundTexture;
 	D3DXVECTOR3 playerPos;
 	D3DXVECTOR3 moves;
 	D3DXVECTOR3 bgPos;
 	D3DXMATRIX spriteManip;
+	D3DXVECTOR3 enemyPos;
+	float s;
 	RECT bgTop;
 	RECT bgBottom;
 	RECT player;
@@ -49,11 +52,13 @@ private:
 	RECT kaguya;
 	RECT bucket;
 	RECT fairy;
+	RECT explosionAnim;
 	bool firing;
+	bool exploding;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
-	int leveltime, offset;
+	int leveltime, offset, curFrame, curRow, explosionTime;
 
 public:
 	void setHwnd(HWND _hwnd);
@@ -66,8 +71,10 @@ public:
 	void initMenuScreen();
 	void initLevel1();
 	void setRects();
+	void scrollBackground();
 	void level1Script();
-	void eventType1(int start, int end, int dest, RECT sprite);
+	void drawEnemyBullets();
+	void moveEnemies(int start, int end, int midX, int midY, int endX, int endY, RECT sprite);
 };
 
 #endif
