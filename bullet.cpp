@@ -12,14 +12,6 @@ int Bullet::getOwner() {
 	return owner;
 }
 
-void Bullet::setStartPos(D3DXVECTOR3 _startPos) {
-	startPos = _startPos;
-}
-
-D3DXVECTOR3 Bullet::getStartPos() {
-	return startPos;
-}
-
 void Bullet::setPointed(bool _pointed) {
 	pointed = _pointed;
 }
