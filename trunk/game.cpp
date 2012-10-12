@@ -58,19 +58,25 @@ void Game::handleInput() {
 		}
 
 		case 1: {
+			if (GetAsyncKeyState(VK_SHIFT))
+				focus = true;
+			else focus = false;
+			if (focus)
+				moveRate = 3;
+			else moveRate = 6;
 			if (GetAsyncKeyState(VK_DOWN) && !exploding) 
-				playerPos.y += 5;
+				playerPos.y += moveRate;
 			if (GetAsyncKeyState(VK_UP) && !exploding) 
-				playerPos.y -= 5;
+				playerPos.y -= moveRate;
 			if (GetAsyncKeyState(VK_LEFT) && !exploding) 
-				playerPos.x -= 5;
+				playerPos.x -= moveRate;
 			if (GetAsyncKeyState(VK_RIGHT) && !exploding)
-				playerPos.x += 5;
-			if (GetAsyncKeyState('Z')) 
+				playerPos.x += moveRate;
+			/*if (GetAsyncKeyState('Z')) 
 				playerPos.z -= 5;
 			if (GetAsyncKeyState('A'))
-				playerPos.z += 5;
-			if (GetAsyncKeyState(VK_SPACE)) {
+				playerPos.z += 5;*/
+			if (GetAsyncKeyState(VK_SPACE) && !exploding) {
 				for (int i = 0; i < 100; i++) {
 					if (!playerBullets[i].isActive()) {
 						playerBullets[i].setActive(true);
@@ -127,8 +133,8 @@ void Game::render() {
 					explosionTime = 3;
 				}
 				if (curFrame > 4 && curRow > 4) {
-					playerPos.x = 400;
-					playerPos.y = 400;
+					playerPos.x = SCREEN_WIDTH/2; 
+					playerPos.y = SCREEN_HEIGHT*8/10;
 					exploding = false;
 					curFrame = 0;
 					curRow = 0;
@@ -138,7 +144,10 @@ void Game::render() {
 					curRow++;
 				}
 			}
-			else gameSprites->Draw(gameTexture, &player, NULL, &playerPos, 0xFFFFFFFF);
+			else {
+				gameSprites->Draw(gameTexture, &player, NULL, &playerPos, 0xFFFFFFFF);
+				gameSprites->Draw(bulletTexture, &laser, NULL, &D3DXVECTOR3(playerBox.left + playerPos.x + 10, playerBox.top + playerPos.y + 10, 0), 0xFFFFFFFF);
+			}
 
 			// draw player bullets
 			for (int i = 0; i < 100; i++) {
@@ -157,7 +166,7 @@ void Game::render() {
 						}
 					}
 					else {
-						gameSprites->Draw(laserTexture, &laser, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
+						gameSprites->Draw(bulletTexture, &laser, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
 						playerBullets[i].move(0,-10,0); 
 					}
 					if (playerBullets[i].getPos(1) < 0)
@@ -167,6 +176,7 @@ void Game::render() {
 
 			// draw enemy bullets
 			drawEnemyBullets();
+			// move enemies
 			level1Script();
 			gameSprites->End();
 			leveltime++;
@@ -216,7 +226,7 @@ void Game::initLevel1() {
 		MessageBox(hwnd, TEXT("Error Loading Sprite"), TEXT("Error"), MB_ICONERROR);
 		return;
 	} 
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("balloon.jpg"), &gameTexture))) {
+	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("ships.png"), &gameTexture))) {
 		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
 		return;
 	}
@@ -229,6 +239,10 @@ void Game::initLevel1() {
 		return;
 	}
 	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("explosionSpriteSheet.png"), &explosionTexture))) {
+		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+		return;
+	}
+	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("bulletSprites.png"), &bulletTexture))) {
 		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
 		return;
 	}
@@ -253,10 +267,14 @@ void Game::setRects() {
 	playerBox.right=player.right/2;
 	playerBox.top = 0;
 	playerBox.bottom=player.left/2;
-	laser.left=0;
-	laser.right=12;
+	laser.left=127;
+	laser.right=143;
 	laser.top=0;
-	laser.bottom=33;
+	laser.bottom=16;
+	greenBullet.left = 159;
+	greenBullet.right = 175;
+	greenBullet.top = 22;
+	greenBullet.bottom = 40;
 	kaguya.left=108;
 	kaguya.right=140;
 	kaguya.top=5;
@@ -333,19 +351,21 @@ void Game::drawEnemyBullets() {
 	int startX, startY;
 	for (int i = 0; i < 1000; i++) {
 		if (enemyBullets[i].isActive()) {
-			if (enemyBullets[i].inBounds(playerBox, playerPos.x + 10, playerPos.y + 10)) {
-				if (!exploding)
-					exploding = true;
+			if (enemyBullets[i].inBounds(playerBox, playerPos.x + 10, playerPos.y + 10) && !exploding) {
+				exploding = true;
 				enemyBullets[i].setActive(false);
 			}
 			angle = atan(moveRate.y/moveRate.x);
 			D3DXMatrixTranslation(&translation1,-1*enemyBullets[i].getPos(0),-1*enemyBullets[i].getPos(1),0);
-			D3DXMatrixRotationZ(&rotation, angle+PI/2);
+			if (enemyBullets[i].getPos(0) < playerPos.x)
+				D3DXMatrixRotationZ(&rotation, angle + PI/4);
+			else D3DXMatrixRotationZ(&rotation, angle - PI/4);
 			D3DXMatrixTranslation(&translation2,enemyBullets[i].getPos(0),enemyBullets[i].getPos(1),0);
 			D3DXMatrixMultiply(&spriteManip, &translation1, &rotation);
 			D3DXMatrixMultiply(&spriteManip, &spriteManip, &translation2);
 			gameSprites->SetTransform(&spriteManip);
-			gameSprites->Draw(laserTexture, &laser, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
+
+			gameSprites->Draw(bulletTexture, &greenBullet, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
 			moveRate = enemyBullets[i].getTarget() - enemyBullets[i].getStartPos();
 			D3DXVec3Normalize(&moveRate, &moveRate);
 			enemyBullets[i].move(moveRate.x*3, moveRate.y*3, moveRate.z*3); 
@@ -360,6 +380,7 @@ void Game::drawEnemyBullets() {
 void Game::moveEnemies(int start, int end, int midX, int midY, int endX, int endY, RECT sprite) {
 	moves.x = 0; moves.z = 0;
 	for (int i = start; i < end; i++) {
+		// draw enemies
 		int action = enemies[i].getAction();
 		if (enemies[i].getPos(1) < 0 && enemies[i].isActive()) 
 			enemies[i].setAction(0);
@@ -380,11 +401,13 @@ void Game::moveEnemies(int start, int end, int midX, int midY, int endX, int end
 			else gameSprites->Draw(gameTexture, &sprite, NULL, &enemies[i].getPos(), 0xFFFFFFFF);
 		}
 		for (int j = 0; j < 100; j++) {
-			if (enemies[i].inBounds(playerBullets[j]) && playerBullets[j].isActive() && enemies[i].getPos(1) > 0) {
+			if (enemies[i].inBounds(playerBullets[j]) && playerBullets[j].isActive() && enemies[i].getPos(1) > 0 && !enemies[i].isExploding()) {
 				enemies[i].setExploding(true);
 				playerBullets[j].setExploding(true);
 			}
 		}
+
+		// move enemies
 		switch(action) {
 			case 0: {
 				moves.y = 5;
@@ -418,7 +441,7 @@ void Game::moveEnemies(int start, int end, int midX, int midY, int endX, int end
 											&D3DXVECTOR3(midX + 25*(i-start), midY, 0), enemies[i].getS());
 				enemies[i].setS(enemies[i].getS() - 0.01);
 				enemies[i].setPos(enemyPos.x, enemyPos.y, enemyPos.z);
-				if (enemies[i].getPos(0) < 0 || enemies[i].getPos(1) < 0) {
+				if (enemies[i].getPos(0) < 0 || enemies[i].getPos(1) < 0 || enemies[i].getPos(0) > SCREEN_WIDTH || enemies[i].getPos(1) > SCREEN_HEIGHT) {
 					enemies[i].setActive(false);
 				}
 				break;

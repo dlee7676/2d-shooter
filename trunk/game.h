@@ -38,27 +38,19 @@ private:
 	LPDIRECT3DTEXTURE9 laserTexture;
 	LPDIRECT3DTEXTURE9 explosionTexture;
 	LPDIRECT3DTEXTURE9 levelBackgroundTexture;
+	LPDIRECT3DTEXTURE9 bulletTexture;
 	D3DXVECTOR3 playerPos;
 	D3DXVECTOR3 moves;
 	D3DXVECTOR3 bgPos;
 	D3DXMATRIX spriteManip;
 	D3DXVECTOR3 enemyPos;
 	float s;
-	RECT bgTop;
-	RECT bgBottom;
-	RECT player;
-	RECT playerBox;
-	RECT laser;
-	RECT kaguya;
-	RECT bucket;
-	RECT fairy;
-	RECT explosionAnim;
-	bool firing;
-	bool exploding;
+	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, kaguya, bucket, fairy, explosionAnim;
+	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
-	int leveltime, offset, curFrame, curRow, explosionTime;
+	int leveltime, offset, curFrame, curRow, explosionTime, moveRate;
 
 public:
 	void setHwnd(HWND _hwnd);
