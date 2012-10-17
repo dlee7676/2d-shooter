@@ -6,8 +6,11 @@
 #include <windowsx.h>
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <vector>
 #include "bullet.h"
 #include "enemy.h"
+
+using namespace std;
 
 // define the screen resolution
 #define SCREEN_WIDTH  800
@@ -43,13 +46,16 @@ private:
 	D3DXVECTOR3 moves;
 	D3DXVECTOR3 bgPos;
 	D3DXMATRIX spriteManip;
+	D3DXMATRIX rotation, scaling;
+	D3DXMATRIX translation1, translation2;
 	D3DXVECTOR3 enemyPos;
 	float s;
-	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, kaguya, bucket, fairy, explosionAnim;
+	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, bucket, fairy, explosionAnim;
 	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
+	vector<Enemy> enemiesList;
 	int leveltime, offset, curFrame, curRow, explosionTime, moveRate;
 
 public:
@@ -65,8 +71,10 @@ public:
 	void setRects();
 	void scrollBackground();
 	void level1Script();
+	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY);
 	void drawEnemyBullets();
 	void moveEnemies(int start, int end, int midX, int midY, int endX, int endY, RECT sprite);
+	void moveEnemies2();
 };
 
 #endif

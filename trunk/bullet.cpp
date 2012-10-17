@@ -12,14 +12,6 @@ int Bullet::getOwner() {
 	return owner;
 }
 
-void Bullet::setPointed(bool _pointed) {
-	pointed = _pointed;
-}
-
-bool Bullet::isPointed() {
-	return pointed;
-}
-
 void Bullet::setTarget(D3DXVECTOR3 _target) {
 	target = _target;
 }
