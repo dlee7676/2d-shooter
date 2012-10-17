@@ -8,15 +8,16 @@ class GameObject {
 
 private:
 	D3DXVECTOR3 pos;
-	D3DXVECTOR3 startPos;
+	D3DXVECTOR3 startPos, mid, end;
 	RECT bounds;
 	bool active, exploding;
 	float s;
-	int animTime;
+	int animTime, type;
 
 public:
 	GameObject::GameObject();
-	void init(int x, int y, int z, RECT bounds_);
+	void init(int x, int y, int z, RECT bounds_, int type_);
+	void init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY);
 	bool isActive();
 	void setActive(bool setting);
 	int getPos(int coord);
@@ -29,6 +30,10 @@ public:
 	bool inBounds(GameObject test);
 	D3DXVECTOR3 getStartPos();
 	void setStartPos(D3DXVECTOR3 _startPos);
+	D3DXVECTOR3 getMid();
+	void setMid(D3DXVECTOR3 _mid);
+	D3DXVECTOR3 getEnd();
+	void setEnd(D3DXVECTOR3 _end);
 	float getS();
 	void setS(float s_);
 	bool isExploding();
@@ -36,6 +41,8 @@ public:
 	bool inBounds(RECT test, int x, int y);
 	int getAnimTime();
 	void setAnimTime(int time);
+	int getType();
+	void setType(int type_);
 };
 	
 #endif

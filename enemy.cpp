@@ -38,12 +38,13 @@ void Enemy::setAction(int command) {
 	action = command;
 }
 
-void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, int size, int owner, RECT bounds) {
+void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, int size, int owner, RECT bounds, int type_) {
 	for (int i=0; i < size; i++) {
 		if (!enemyBullets[i].isActive()) {
 			enemyBullets[i].setActive(true);
 			enemyBullets[i].setBounds(bounds);
 			enemyBullets[i].setOwner(owner);
+			enemyBullets[i].setType(type_);
 			enemyBullets[i].setStartPos(this->getPos());
 			enemyBullets[i].setPos(this->getPos(0), this->getPos(1), this->getPos(2));
 			enemyBullets[i].setTarget(playerPos);
