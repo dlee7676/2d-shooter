@@ -49,6 +49,7 @@ private:
 	D3DXMATRIX rotation, scaling;
 	D3DXMATRIX translation1, translation2;
 	D3DXVECTOR3 enemyPos;
+	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
 	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, bucket, fairy, explosionAnim;
 	bool firing, exploding, focus;
@@ -56,7 +57,9 @@ private:
 	Bullet* enemyBullets;
 	Enemy* enemies;
 	vector<Enemy> enemiesList;
+	GameObject playerObject;
 	int leveltime, offset, curFrame, curRow, explosionTime, moveRate;
+	int cooldown;
 
 public:
 	void setHwnd(HWND _hwnd);
@@ -71,10 +74,12 @@ public:
 	void setRects();
 	void scrollBackground();
 	void level1Script();
-	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY);
+	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life);
+	void drawPlayerBullets();
 	void drawEnemyBullets();
 	void moveEnemies(int start, int end, int midX, int midY, int endX, int endY, RECT sprite);
 	void moveEnemies2();
+	RECT calcHitbox(RECT bounds);
 };
 
 #endif

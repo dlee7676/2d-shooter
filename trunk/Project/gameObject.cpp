@@ -22,30 +22,6 @@ void GameObject::init(int x, int y, int z, RECT bounds_, int type_) {
 	type = type_;
 }
 
-void GameObject::init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY) {
-	pos.x = x;
-	pos.y = y;
-	pos.z = z;
-	startPos.x = x;
-	startPos.y = y;
-	startPos.z = z;
-	mid.x = midX;
-	mid.y = midY;
-	mid.z = 0;
-	end.x = endX;
-	end.y = endY;
-	end.z = 0;
-	s = 0.0f;
-	bounds.left = 0;
-	bounds.top = 0;
-	bounds.right = bounds_.right - bounds_.left;
-	bounds.bottom = bounds_.bottom - bounds_.top;
-	active = true;
-	exploding = false;
-	animTime = 10;
-	type = type_;
-}
-
 bool GameObject::isActive() {
 	if (active)
 		return true;
@@ -100,22 +76,6 @@ D3DXVECTOR3 GameObject::getStartPos() {
 
 void GameObject::setStartPos(D3DXVECTOR3 _startPos) {
 	startPos = _startPos;
-}
-
-D3DXVECTOR3 GameObject::getMid() {
-	return mid;
-}
-
-void GameObject::setMid(D3DXVECTOR3 _mid) {
-	mid = _mid;
-}
-
-D3DXVECTOR3 GameObject::getEnd() {
-	return end;
-}
-
-void GameObject::setEnd(D3DXVECTOR3 _end) {
-	end = _end;
 }
 
 float GameObject::getS() {
