@@ -4,6 +4,17 @@ Enemy::Enemy() : GameObject(), action(0), waitTime(0) {
 
 }
 
+void Enemy::init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY, int life_) {
+	this->GameObject::init(x,y,z,bounds_,type_);
+	mid.x = midX;
+	mid.y = midY;
+	mid.z = 0;
+	end.x = endX;
+	end.y = endY;
+	end.z = 0;
+	life = life_;
+}
+
 void Enemy::wait() {
 	waitTime++;
 }
@@ -36,6 +47,30 @@ int Enemy::getAction() {
 
 void Enemy::setAction(int command) {
 	action = command;
+}
+
+float Enemy::getLife() {
+	return life;
+}
+
+void Enemy::setLife(float value) {
+	life = value;
+}
+
+D3DXVECTOR3 Enemy::getMid() {
+	return mid;
+}
+
+void Enemy::setMid(D3DXVECTOR3 _mid) {
+	mid = _mid;
+}
+
+D3DXVECTOR3 Enemy::getEnd() {
+	return end;
+}
+
+void Enemy::setEnd(D3DXVECTOR3 _end) {
+	end = _end;
 }
 
 void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, int size, int owner, RECT bounds, int type_) {

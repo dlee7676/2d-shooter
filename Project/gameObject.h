@@ -7,8 +7,7 @@
 class GameObject {
 
 private:
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 startPos, mid, end;
+	D3DXVECTOR3 pos, startPos;
 	RECT bounds;
 	bool active, exploding;
 	float s;
@@ -30,10 +29,6 @@ public:
 	bool inBounds(GameObject test);
 	D3DXVECTOR3 getStartPos();
 	void setStartPos(D3DXVECTOR3 _startPos);
-	D3DXVECTOR3 getMid();
-	void setMid(D3DXVECTOR3 _mid);
-	D3DXVECTOR3 getEnd();
-	void setEnd(D3DXVECTOR3 _end);
 	float getS();
 	void setS(float s_);
 	bool isExploding();
