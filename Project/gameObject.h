@@ -12,10 +12,11 @@ private:
 	bool active, exploding;
 	float s;
 	int animTime, type;
+	float speed;
 
 public:
 	GameObject::GameObject();
-	void init(int x, int y, int z, RECT bounds_, int type_);
+	void init(int x, int y, int z, RECT bounds_, int type_, float speed_);
 	void init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY);
 	bool isActive();
 	void setActive(bool setting);
@@ -38,6 +39,7 @@ public:
 	void setAnimTime(int time);
 	int getType();
 	void setType(int type_);
+	float getSpeed();
 };
 	
 #endif

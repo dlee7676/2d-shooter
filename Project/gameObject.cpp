@@ -4,7 +4,7 @@ GameObject::GameObject() :pos(0,0,0), active(false), exploding(false) {
 
 }
 
-void GameObject::init(int x, int y, int z, RECT bounds_, int type_) {
+void GameObject::init(int x, int y, int z, RECT bounds_, int type_, float speed_) {
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
@@ -20,6 +20,7 @@ void GameObject::init(int x, int y, int z, RECT bounds_, int type_) {
 	exploding = false;
 	animTime = 10;
 	type = type_;
+	speed = speed_;
 }
 
 bool GameObject::isActive() {
@@ -134,4 +135,8 @@ int GameObject::getType() {
 
 void GameObject::setType(int type_) {
 	type = type_;
+}
+
+float GameObject::getSpeed() {
+	return speed;
 }

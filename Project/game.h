@@ -41,7 +41,7 @@ private:
 	LPDIRECT3DTEXTURE9 laserTexture;
 	LPDIRECT3DTEXTURE9 explosionTexture;
 	LPDIRECT3DTEXTURE9 levelBackgroundTexture;
-	LPDIRECT3DTEXTURE9 bulletTexture;
+	LPDIRECT3DTEXTURE9 bulletTexture, greenLaserTexture;
 	D3DXVECTOR3 playerPos;
 	D3DXVECTOR3 moves;
 	D3DXVECTOR3 bgPos;
@@ -51,7 +51,7 @@ private:
 	D3DXVECTOR3 enemyPos;
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
-	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, bucket, fairy, explosionAnim;
+	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, bucket, fairy, explosionAnim, levelText, descText;
 	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
@@ -74,11 +74,11 @@ public:
 	void setRects();
 	void scrollBackground();
 	void level1Script();
-	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life);
+	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 	void drawPlayerBullets();
 	void drawEnemyBullets();
-	void moveEnemies(int start, int end, int midX, int midY, int endX, int endY, RECT sprite);
-	void moveEnemies2();
+	void moveEnemies();
+	void drawTitle();
 	RECT calcHitbox(RECT bounds);
 };
 
