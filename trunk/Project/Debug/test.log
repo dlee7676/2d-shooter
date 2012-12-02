@@ -1,23 +1,74 @@
-﻿Build started 16/09/2012 10:02:33 PM.
+﻿Build started 01/12/2012 5:46:50 PM.
      1>Project "C:\Users\bloopie\documents\visual studio 2010\Projects\test\test\test.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\test.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
          C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt game.cpp
          game.cpp
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(77): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(77): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(77): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(133): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(133): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(134): warning C4244: 'argument' : conversion from 'double' to 'FLOAT', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(135): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(135): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(142): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(142): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(142): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(129): warning C4101: 'startY' : unreferenced local variable
-     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(129): warning C4101: 'startX' : unreferenced local variable
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(85): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(85): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(85): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(318): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(330): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(330): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(332): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(332): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(346): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(346): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(347): warning C4305: 'argument' : truncation from 'double' to 'FLOAT'
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(348): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(348): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(372): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(372): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(382): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(382): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(384): warning C4244: 'argument' : conversion from 'double' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(385): warning C4305: 'argument' : truncation from 'double' to 'FLOAT'
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(385): warning C4305: 'argument' : truncation from 'double' to 'FLOAT'
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(388): warning C4244: 'argument' : conversion from 'double' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(389): warning C4244: 'argument' : conversion from 'double' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(390): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(390): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(413): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(413): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(413): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(369): warning C4101: 'startY' : unreferenced local variable
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(369): warning C4101: 'startX' : unreferenced local variable
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(428): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(485): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(486): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(486): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(486): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(544): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(544): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(550): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(550): warning C4244: 'argument' : conversion from 'int' to 'FLOAT', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(583): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(584): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(584): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(584): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(598): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(612): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(613): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(616): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(617): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(658): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(691): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(692): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(693): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(694): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(695): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(696): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(697): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(698): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(699): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(700): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(701): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(702): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(703): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(704): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(705): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\bloopie\documents\visual studio 2010\projects\test\test\game.cpp(706): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
@@ -40,4 +91,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.78
+Time Elapsed 00:00:04.11

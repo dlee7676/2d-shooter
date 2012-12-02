@@ -13,7 +13,7 @@ private:
 
 public:
 	Enemy::Enemy();
-	void init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY, int life_);
+	void init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY, int life_, float speed_);
 	void wait();
 	void waitAt(int time, int pos);
 	int getWaitTime();
@@ -28,7 +28,7 @@ public:
 	void setMid(D3DXVECTOR3 _mid);
 	D3DXVECTOR3 getEnd();
 	void setEnd(D3DXVECTOR3 _end);
-	void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, int size, int owner, RECT bounds, int type_);
+	void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, int type_);
 };
 
 #endif
