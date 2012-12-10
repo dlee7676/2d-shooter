@@ -41,7 +41,7 @@ private:
 	LPDIRECT3DTEXTURE9 laserTexture;
 	LPDIRECT3DTEXTURE9 explosionTexture;
 	LPDIRECT3DTEXTURE9 levelBackgroundTexture;
-	LPDIRECT3DTEXTURE9 bulletTexture, greenLaserTexture;
+	LPDIRECT3DTEXTURE9 bulletTexture, greenLaserTexture, enemyTexture;
 	D3DXVECTOR3 playerPos;
 	D3DXVECTOR3 moves;
 	D3DXVECTOR3 bgPos;
@@ -51,7 +51,7 @@ private:
 	D3DXVECTOR3 enemyPos;
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
-	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, bucket, fairy, explosionAnim, levelText, descText;
+	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, explosionAnim, levelText, descText;
 	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;

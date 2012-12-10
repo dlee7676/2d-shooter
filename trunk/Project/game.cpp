@@ -95,8 +95,9 @@ void Game::handleInput() {
 				screen = 0;
 				delete playerBullets;
 				delete enemyBullets;
+				enemyTexture->Release();
 				enemiesList.clear();
-				//initMenuScreen();
+				initMenuScreen();
 			}
 			break;
 		}
@@ -130,14 +131,45 @@ void Game::render() {
 
 			// draw player
 			if (exploding) {
-				explosionAnim.left = 0;
+				/*explosionAnim.left = 0;
 				explosionAnim.top = 0;
-				explosionAnim.right = 80;
-				explosionAnim.bottom = 80;
-				/*explosionAnim.left = curFrame * 80;
-				explosionAnim.top = curRow * 80;
-				explosionAnim.right = explosionAnim.left + 80;
-				explosionAnim.bottom = explosionAnim.top + 80;*/
+				explosionAnim.right = 64*1.27;
+				explosionAnim.bottom = 64*1.27;*/
+				/*if (curFrame == 0) {
+					explosionAnim.left = 0;
+					explosionAnim.top = 420;
+					explosionAnim.right = 100;
+					explosionAnim.bottom = 500;
+				}
+				if (curFrame == 1) {
+					explosionAnim.left = 100;
+					explosionAnim.top = 420;
+					explosionAnim.right = 200;
+					explosionAnim.bottom = 500;
+				}
+				if (curFrame == 2) {
+					explosionAnim.left = 200;
+					explosionAnim.top = 420;
+					explosionAnim.right = 300;
+					explosionAnim.bottom = 500;
+				}
+				if (curFrame == 3) {
+					explosionAnim.left = 300;
+					explosionAnim.top = 420;
+					explosionAnim.right = 400;
+					explosionAnim.bottom = 500;
+				}
+				if (curFrame == 4) {
+					explosionAnim.left = 0;
+					explosionAnim.top = 420;
+					explosionAnim.right = 100;
+					explosionAnim.bottom = 500;
+				}*/
+
+				explosionAnim.left = curFrame*100;
+				explosionAnim.top = curRow*100+5*curRow;
+				explosionAnim.right = explosionAnim.left+100;
+				explosionAnim.bottom = explosionAnim.top+100-5*curRow;
 				gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &playerPos, 0xFFFFFFFF);
 				explosionTime--;
 				if (explosionTime <= 0) {
@@ -153,7 +185,9 @@ void Game::render() {
 				}
 				else if (curFrame > 4) {
 					curFrame = 0;
-					curRow++;
+					if (curRow < 4)
+						curRow = 4;
+					else curRow++;
 				}
 			}
 			else {
@@ -222,6 +256,10 @@ void Game::initLevel1() {
 		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
 		return;
 	}
+	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("enemySprites.png"), &enemyTexture))) {
+		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+		return;
+	}
 	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("laser.jpg"), &laserTexture))) {
 		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
 		return;
@@ -267,18 +305,22 @@ void Game::setRects() {
 	playerBox.right=player.right/20;
 	playerBox.top = 0;
 	playerBox.bottom=player.bottom/20;
-	kaguya.left=108;
-	kaguya.right=140;
-	kaguya.top=5;
-	kaguya.bottom=41;
-	bucket.left=267; 
-	bucket.top=8;
-	bucket.right=294; 
-	bucket.bottom=44;
-	fairy.left=149; 
-	fairy.top=2;
-	fairy.right=201; 
-	fairy.bottom=54;
+	kaguya.left=454;
+	kaguya.top=1360;
+	kaguya.right=500;
+	kaguya.bottom=1420;
+	aimedShot.left=170; 
+	aimedShot.top=670;
+	aimedShot.right=230; 
+	aimedShot.bottom=740;
+	fairy.left=172; 
+	fairy.top=310;
+	fairy.right=219; 
+	fairy.bottom=371;
+	spreadShot.left=454;
+	spreadShot.top=380;
+	spreadShot.right=500;
+	spreadShot.bottom=435;
 	laser.left=127;
 	laser.right=143;
 	laser.top=0;
@@ -445,19 +487,19 @@ void Game::moveEnemies() {
 			else {
 				switch(enemiesList[i].getType()) {
 					case 0: {
-						gameSprites->Draw(gameTexture, &bucket, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+						gameSprites->Draw(enemyTexture, &aimedShot, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 						break;
 					}
 					case 1: {
-						gameSprites->Draw(gameTexture, &kaguya, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+						gameSprites->Draw(enemyTexture, &kaguya, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 						break;
 					}
 					case 2: {
-						gameSprites->Draw(gameTexture, &fairy, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+						gameSprites->Draw(enemyTexture, &fairy, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 						break;
 					}
 					case 3: {
-						gameSprites->Draw(gameTexture, &fairy, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+						gameSprites->Draw(enemyTexture, &spreadShot, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 						break;
 					}
 				}
@@ -664,84 +706,84 @@ void Game::level1Script() {
 	}
 
 	if (leveltime == 250) {
-		makeEnemy(150, -25, 0, bucket, 0, 50, 215, -30, 300, 50, 2);
-		makeEnemy(175, -35, 0, bucket, 0, 60, 225, -30, 300, 50, 2);
-		makeEnemy(200, -25, 0, bucket, 0, 70, 220, -30, 300, 50, 2);
-		makeEnemy(225, -20, 0, bucket, 0, 80, 225, -30, 300, 50, 2);
+		makeEnemy(150, -25, 0, aimedShot, 0, 50, 215, -30, 300, 50, 2);
+		makeEnemy(175, -35, 0, aimedShot, 0, 60, 225, -30, 300, 50, 2);
+		makeEnemy(200, -25, 0, aimedShot, 0, 70, 220, -30, 300, 50, 2);
+		makeEnemy(225, -20, 0, aimedShot, 0, 80, 225, -30, 300, 50, 2);
 		makeEnemy(225, -20, 0, kaguya, 1, 100, 200, -30, 300, 250, 2);
-		makeEnemy(250, -40, 0, bucket, 0, 95, 218, -30, 300, 50, 2);
-		makeEnemy(275, -35, 0, bucket, 0, 100, 225, -30, 300, 50, 2);
-		makeEnemy(300, -25, 0, bucket, 0, 110, 220, -30, 300, 50, 2);
-		makeEnemy(325, -20, 0, bucket, 0, 120, 225, -30, 300, 50, 2);
+		makeEnemy(250, -40, 0, aimedShot, 0, 95, 218, -30, 300, 50, 2);
+		makeEnemy(275, -35, 0, aimedShot, 0, 100, 225, -30, 300, 50, 2);
+		makeEnemy(300, -25, 0, aimedShot, 0, 110, 220, -30, 300, 50, 2);
+		makeEnemy(325, -20, 0, aimedShot, 0, 120, 225, -30, 300, 50, 2);
 	}
 
 	if (leveltime == 450) {
-		makeEnemy(550,-40, 0, bucket, 0, 550, 215, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(575, -35, 0, bucket, 0, 560, 225, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(600, -25, 0, bucket, 0,  570, 220, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(625, -20, 0, bucket, 0, 580, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(550,-40, 0, aimedShot, 0, 550, 215, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(575, -35, 0, aimedShot, 0, 560, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(600, -25, 0, aimedShot, 0,  570, 220, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(625, -20, 0, aimedShot, 0, 580, 225, SCREEN_WIDTH, 300, 50, 2);
 		makeEnemy(625, -20, 0, kaguya, 1, 590, 200, SCREEN_WIDTH, 300, 250, 2);
-		makeEnemy(650, -40, 0, bucket, 0, 600, 218, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(670, -35, 0, bucket, 0, 610, 225, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(700, -25, 0, bucket, 0,  620, 220, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(725, -20, 0, bucket, 0, 630, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(650, -40, 0, aimedShot, 0, 600, 218, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(670, -35, 0, aimedShot, 0, 610, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(700, -25, 0, aimedShot, 0,  620, 220, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(725, -20, 0, aimedShot, 0, 630, 225, SCREEN_WIDTH, 300, 50, 2);
 	}
 
 	if (leveltime == 700) {
-		makeEnemy(200,-40, 0, bucket, 0, 300, 300, -30, 500, 50, 1.5);
-		makeEnemy(300, -35, 0, bucket, 0, 300, 300, -30, 500, 50, 1.5);
-		makeEnemy(400, -25, 0, bucket, 0, 300, 300, 1000, 500, 50, 1.5);
-		makeEnemy(500, -20, 0, bucket, 0, 300, 300, 1000, 500, 50, 1.5);
-		makeEnemy(100,-40, 0, bucket, 0, 300, 300, -30, 500, 50, 1.5);
-		makeEnemy(600, -35, 0, bucket, 0, 300, 300, -30, 500, 50, 1.5);
-		makeEnemy(700, -25, 0, bucket, 0, 300, 300, 1000, 500, 50, 1.5);
-		makeEnemy(800, -20, 0, bucket, 0, 300, 300, 1000, 500, 50, 1.5);
-		makeEnemy(205,-40, 0, bucket, 0, 305, 300, -30, 500, 50, 1.5);
-		makeEnemy(305, -35, 0, bucket, 0, 305, 300, -30, 500, 50, 1.5);
-		makeEnemy(405, -25, 0, bucket, 0, 305, 300, 1000, 500, 50, 1.5);
-		makeEnemy(505, -20, 0, bucket, 0, 305, 300, 1000, 500, 50, 1.5);
-		makeEnemy(105,-40, 0, bucket, 0, 305, 300, -30, 500, 50, 1.5);
-		makeEnemy(605, -35, 0, bucket, 0, 305, 300, -30, 500, 50, 1.5);
-		makeEnemy(705, -25, 0, bucket, 0, 305, 300, 1000, 500, 50, 1.5);
-		makeEnemy(805, -20, 0, bucket, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(200,-40, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(300, -35, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(400, -25, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(500, -20, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(100,-40, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(600, -35, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(700, -25, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(800, -20, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(205,-40, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(305, -35, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(405, -25, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(505, -20, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(105,-40, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(605, -35, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(705, -25, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(805, -20, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
 		makeEnemy(SCREEN_WIDTH/2 - 200, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 200, 250, SCREEN_WIDTH/2 - 200, -20, 250, 2);
 		makeEnemy(SCREEN_WIDTH/2 - 100, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 100, 250, SCREEN_WIDTH/2 - 100, -20, 250, 2);
 		makeEnemy(SCREEN_WIDTH/2 + 100, -20, 0, kaguya, 1, SCREEN_WIDTH/2 + 100, 250, SCREEN_WIDTH/2 + 100, -20, 250, 2);
 	}
 
-	if (leveltime == 1000) {makeEnemy(550,-40, 0, bucket, 0, 600, 215, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(575, -35, 0, bucket, 0, 610, 225, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(600, -25, 0, bucket, 0,  620, 220, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(625, -20, 0, bucket, 0, 630, 225, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(650, -40, 0, bucket, 0, 640, 218, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(670, -35, 0, bucket, 0, 650, 225, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(700, -25, 0, bucket, 0,  660, 220, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(725, -20, 0, bucket, 0, 670, 225, SCREEN_WIDTH, 300, 50, 2);
+	if (leveltime == 1000) {makeEnemy(550,-40, 0, aimedShot, 0, 600, 215, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(575, -35, 0, aimedShot, 0, 610, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(600, -25, 0, aimedShot, 0,  620, 220, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(625, -20, 0, aimedShot, 0, 630, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(650, -40, 0, aimedShot, 0, 640, 218, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(670, -35, 0, aimedShot, 0, 650, 225, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(700, -25, 0, aimedShot, 0,  660, 220, SCREEN_WIDTH, 300, 50, 2);
+		makeEnemy(725, -20, 0, aimedShot, 0, 670, 225, SCREEN_WIDTH, 300, 50, 2);
 	}
 
 	if (leveltime >= 1020 && leveltime < 1100) {
 		for (int i = 1020; i < 1100; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(0, 200, 0, bucket, 3, 1000, 250, -100, 200, 50, 1);
+				makeEnemy(0, 200, 0, spreadShot, 3, 1000, 250, -100, 200, 25, 1);
 			}
 		}
 	}
 
 	if (leveltime == 1250) {
-		makeEnemy(150, -25, 0, bucket, 0, 50, 215, -30, 300, 50, 2);
-		makeEnemy(175, -35, 0, bucket, 0, 60, 225, -30, 300, 50, 2);
-		makeEnemy(200, -25, 0, bucket, 0, 70, 220, -30, 300, 50, 2);
-		makeEnemy(225, -20, 0, bucket, 0, 80, 225, -30, 300, 50, 2);
-		makeEnemy(250, -40, 0, bucket, 0, 95, 218, -30, 300, 50, 2);
-		makeEnemy(275, -35, 0, bucket, 0, 100, 225, -30, 300, 50, 2);
-		makeEnemy(300, -25, 0, bucket, 0, 110, 220, -30, 300, 50, 2);
-		makeEnemy(325, -20, 0, bucket, 0, 120, 225, -30, 300, 50, 2);
+		makeEnemy(150, -25, 0, aimedShot, 0, 50, 215, -30, 300, 50, 2);
+		makeEnemy(175, -35, 0, aimedShot, 0, 60, 225, -30, 300, 50, 2);
+		makeEnemy(200, -25, 0, aimedShot, 0, 70, 220, -30, 300, 50, 2);
+		makeEnemy(225, -20, 0, aimedShot, 0, 80, 225, -30, 300, 50, 2);
+		makeEnemy(250, -40, 0, aimedShot, 0, 95, 218, -30, 300, 50, 2);
+		makeEnemy(275, -35, 0, aimedShot, 0, 100, 225, -30, 300, 50, 2);
+		makeEnemy(300, -25, 0, aimedShot, 0, 110, 220, -30, 300, 50, 2);
+		makeEnemy(325, -20, 0, aimedShot, 0, 120, 225, -30, 300, 50, 2);
 	}
 
 	if (leveltime >= 1260 && leveltime < 1340) {
 		for (int i = 1260; i < 1340; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(900, 200, 0, bucket, 3, -100, 250, 1000, 200, 50, 1);
+				makeEnemy(900, 200, 0, spreadShot, 3, -100, 250, 1000, 200, 25, 1);
 			}
 		}
 	}
@@ -749,8 +791,8 @@ void Game::level1Script() {
 	if (leveltime >= 1500 && leveltime < 1550) {
 		for (int i = 1500; i < 1550; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(100, -10, 0, bucket, 0, 100, 250, -10, 300, 25, 2);
-				makeEnemy(600, -10, 0, bucket, 0, 600, 250, 1000, 300, 25, 2);
+				makeEnemy(100, -10, 0, aimedShot, 0, 100, 250, -10, 300, 25, 2);
+				makeEnemy(600, -10, 0, aimedShot, 0, 600, 250, 1000, 300, 25, 2);
 			}
 		}
 	}
@@ -762,8 +804,8 @@ void Game::level1Script() {
 	if (leveltime >= 1700 && leveltime < 1750) {
 		for (int i = 1700; i < 1750; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(100, -10, 0, bucket, 3, 100, 250, -10, 300, 25, 2);
-				makeEnemy(600, -10, 0, bucket, 3, 600, 250, 1000, 300, 25, 2);
+				makeEnemy(100, -10, 0, spreadShot, 3, 100, 250, -10, 300, 25, 2);
+				makeEnemy(600, -10, 0, spreadShot, 3, 600, 250, 1000, 300, 25, 2);
 			}
 		}
 	}
@@ -783,8 +825,8 @@ void Game::level1Script() {
 	if (leveltime >= 2050 && leveltime < 2100) {
 		for (int i = 2050; i < 2100; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(100, -10, 0, bucket, 0, 100, 250, -10, 300, 25, 2);
-				makeEnemy(600, -10, 0, bucket, 0, 600, 250, 1000, 300, 25, 2);
+				makeEnemy(100, -10, 0, aimedShot, 0, 100, 250, -10, 300, 25, 2);
+				makeEnemy(600, -10, 0, aimedShot, 0, 600, 250, 1000, 300, 25, 2);
 			}
 		}
 	}
@@ -805,8 +847,8 @@ void Game::level1Script() {
 	if (leveltime >= 2300 && leveltime < 2400) {
 		for (int i = 2300; i < 2400; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(100, -10, 0, bucket, 3, 100, 250, -10, 300, 25, 2);
-				makeEnemy(600, -10, 0, bucket, 3, 600, 250, 1000, 300, 25, 2);
+				makeEnemy(100, -10, 0, spreadShot, 3, 100, 250, -10, 300, 25, 2);
+				makeEnemy(600, -10, 0, spreadShot, 3, 600, 250, 1000, 300, 25, 2);
 			}
 		}
 	}
@@ -815,25 +857,68 @@ void Game::level1Script() {
 		for (int i = 2600, j = 0; i < 2700; i+=10, j+=10) {
 			if (leveltime == i) {
 				makeEnemy(600, -10, 0, fairy, 2, 600, 5*j, 600, -10, 500, 2);
-				makeEnemy(100, -10, 0, bucket, 3, 100, 250, -10, 300, 25, 2);
+				makeEnemy(100, -10, 0, spreadShot, 3, 100, 250, -10, 300, 25, 2);
 			}
 		}
 	}
 
 
-	if (leveltime >= 2800 && leveltime < 2900) {
-		for (int i = 2800, j = 0; i < 2900; i+=10, j+=10) {
+	if (leveltime >= 2900 && leveltime < 3000) {
+		for (int i = 2900, j = 0; i < 3000; i+=10, j+=10) {
 			if (leveltime == i) {
 				makeEnemy(100, -10, 0, fairy, 2, 100, 5*j, 100, -10, 500, 2);
-				makeEnemy(700, -10, 0, bucket, 3, 700, 250, 1000, 300, 25, 2);
+				makeEnemy(700, -10, 0, spreadShot, 3, 700, 250, 1000, 300, 25, 2);
 			}
 		}
+	}
+
+	if (leveltime == 3300) {
+		makeEnemy(200,-40, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(300, -35, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(400, -25, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(500, -20, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(100,-40, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(600, -35, 0, aimedShot, 0, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(700, -25, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(800, -20, 0, aimedShot, 0, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(205,-40, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(305, -35, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(405, -25, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(505, -20, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(105,-40, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(605, -35, 0, aimedShot, 0, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(705, -25, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(805, -20, 0, aimedShot, 0, 305, 300, 1000, 500, 50, 1.5);
+
+		makeEnemy(200,-40, 0, spreadShot, 3, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(300, -35, 0, spreadShot, 3, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(400, -25, 0, spreadShot, 3, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(500, -20, 0, spreadShot, 3, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(100,-40, 0, spreadShot, 3, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(600, -35, 0, spreadShot, 3, 300, 300, -30, 500, 50, 1.5);
+		makeEnemy(700, -25, 0, spreadShot, 3, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(800, -20, 0, spreadShot, 3, 300, 300, 1000, 500, 50, 1.5);
+		makeEnemy(205,-40, 0, spreadShot, 3, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(305, -35, 0, spreadShot, 3, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(405, -25, 0, spreadShot, 3, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(505, -20, 0, spreadShot, 3, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(105,-40, 0, spreadShot, 3, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(605, -35, 0, spreadShot, 3, 305, 300, -30, 500, 50, 1.5);
+		makeEnemy(705, -25, 0, spreadShot, 3, 305, 300, 1000, 500, 50, 1.5);
+		makeEnemy(805, -20, 0, spreadShot, 3, 305, 300, 1000, 500, 50, 1.5);
+
+		makeEnemy(SCREEN_WIDTH/2 - 200, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 200, 250, SCREEN_WIDTH/2 - 200, -20, 250, 2);
+		makeEnemy(SCREEN_WIDTH/2 - 100, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 100, 250, SCREEN_WIDTH/2 - 100, -20, 250, 2);
+		makeEnemy(SCREEN_WIDTH/2 + 100, -20, 0, kaguya, 1, SCREEN_WIDTH/2 + 100, 250, SCREEN_WIDTH/2 + 100, -20, 250, 2);
+		makeEnemy(SCREEN_WIDTH/2 - 300, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 300, 250, SCREEN_WIDTH/2 - 200, -20, 250, 2);
+		makeEnemy(SCREEN_WIDTH/2 - 150, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 150, 250, SCREEN_WIDTH/2 - 100, -20, 250, 2);
+		makeEnemy(SCREEN_WIDTH/2 + 200, -20, 0, kaguya, 1, SCREEN_WIDTH/2 + 200, 250, SCREEN_WIDTH/2 + 100, -20, 250, 2);
 	}
 	
 	/*if (leveltime >= 700 && leveltime < 730) {
 		for (int i = 700; i < 800; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(0, 200, 0, bucket, 3, 1000, 250, 1000, 200, 25);
+				makeEnemy(0, 200, 0, aimedShot, 3, 1000, 250, 1000, 200, 25);
 			}
 		}
 	}
@@ -841,7 +926,7 @@ void Game::level1Script() {
 	if (leveltime >= 850 && leveltime < 900) {
 		for (int i = 850; i < 900; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(900, 200, 0, bucket, 0, -100, 250, -100, 200, 25);
+				makeEnemy(900, 200, 0, aimedShot, 0, -100, 250, -100, 200, 25);
 			}
 		}
 	}
@@ -852,34 +937,34 @@ void Game::level1Script() {
 	}
 
 	if (leveltime == 1000) {
-		makeEnemy(250, -25, 0, bucket, 3, 230, 215, -30, 300, 50);
-		makeEnemy(275, -35, 0, bucket, 3, 250, 225, -30, 300, 50);
-		makeEnemy(300, -25, 0, bucket, 3, 260, 220, -30, 300, 50);
-		makeEnemy(325, -20, 0, bucket, 3, 325, 225, -30, 300, 50);
-		makeEnemy(350, -40, 0, bucket, 3, 350, 218, -30, 300, 50);
-		makeEnemy(375, -35, 0, bucket, 3, 400, 225, -30, 300, 50);
-		makeEnemy(400, -25, 0, bucket, 3, 425, 220, -30, 300, 50);
-		makeEnemy(425, -20, 0, bucket, 3, 450, 225, -30, 300, 50);
+		makeEnemy(250, -25, 0, aimedShot, 3, 230, 215, -30, 300, 50);
+		makeEnemy(275, -35, 0, aimedShot, 3, 250, 225, -30, 300, 50);
+		makeEnemy(300, -25, 0, aimedShot, 3, 260, 220, -30, 300, 50);
+		makeEnemy(325, -20, 0, aimedShot, 3, 325, 225, -30, 300, 50);
+		makeEnemy(350, -40, 0, aimedShot, 3, 350, 218, -30, 300, 50);
+		makeEnemy(375, -35, 0, aimedShot, 3, 400, 225, -30, 300, 50);
+		makeEnemy(400, -25, 0, aimedShot, 3, 425, 220, -30, 300, 50);
+		makeEnemy(425, -20, 0, aimedShot, 3, 450, 225, -30, 300, 50);
 	}
 
 	if (leveltime >= 1050 && leveltime < 1150) {
 		for (int i = 1050; i < 1150; i+=10) {
 			if (leveltime == i) {
-				makeEnemy(0, 200, 0, bucket, 3, 1000, 250, 1000, 200, 25);
-				makeEnemy(900, 200, 0, bucket, 3, -100, 250, -100, 200, 25);
+				makeEnemy(0, 200, 0, aimedShot, 3, 1000, 250, 1000, 200, 25);
+				makeEnemy(900, 200, 0, aimedShot, 3, -100, 250, -100, 200, 25);
 			}
 		}
 	}
 
 	if (leveltime == 1500) {
-		makeEnemy(250, -25, 0, bucket, 3, 230, 215, -30, 300, 50);
-		makeEnemy(275, -35, 0, bucket, 3, 250, 225, -30, 300, 50);
-		makeEnemy(300, -25, 0, bucket, 3, 260, 220, -30, 300, 50);
-		makeEnemy(325, -20, 0, bucket, 3, 325, 225, -30, 300, 50);
-		makeEnemy(350, -40, 0, bucket, 3, 350, 218, -30, 300, 50);
-		makeEnemy(375, -35, 0, bucket, 3, 400, 225, -30, 300, 50);
-		makeEnemy(400, -25, 0, bucket, 3, 425, 220, -30, 300, 50);
-		makeEnemy(425, -20, 0, bucket, 3, 450, 225, -30, 300, 50);
+		makeEnemy(250, -25, 0, aimedShot, 3, 230, 215, -30, 300, 50);
+		makeEnemy(275, -35, 0, aimedShot, 3, 250, 225, -30, 300, 50);
+		makeEnemy(300, -25, 0, aimedShot, 3, 260, 220, -30, 300, 50);
+		makeEnemy(325, -20, 0, aimedShot, 3, 325, 225, -30, 300, 50);
+		makeEnemy(350, -40, 0, aimedShot, 3, 350, 218, -30, 300, 50);
+		makeEnemy(375, -35, 0, aimedShot, 3, 400, 225, -30, 300, 50);
+		makeEnemy(400, -25, 0, aimedShot, 3, 425, 220, -30, 300, 50);
+		makeEnemy(425, -20, 0, aimedShot, 3, 450, 225, -30, 300, 50);
 	}
 
 	if (leveltime == 50) {
