@@ -131,41 +131,6 @@ void Game::render() {
 
 			// draw player
 			if (exploding) {
-				/*explosionAnim.left = 0;
-				explosionAnim.top = 0;
-				explosionAnim.right = 64*1.27;
-				explosionAnim.bottom = 64*1.27;*/
-				/*if (curFrame == 0) {
-					explosionAnim.left = 0;
-					explosionAnim.top = 420;
-					explosionAnim.right = 100;
-					explosionAnim.bottom = 500;
-				}
-				if (curFrame == 1) {
-					explosionAnim.left = 100;
-					explosionAnim.top = 420;
-					explosionAnim.right = 200;
-					explosionAnim.bottom = 500;
-				}
-				if (curFrame == 2) {
-					explosionAnim.left = 200;
-					explosionAnim.top = 420;
-					explosionAnim.right = 300;
-					explosionAnim.bottom = 500;
-				}
-				if (curFrame == 3) {
-					explosionAnim.left = 300;
-					explosionAnim.top = 420;
-					explosionAnim.right = 400;
-					explosionAnim.bottom = 500;
-				}
-				if (curFrame == 4) {
-					explosionAnim.left = 0;
-					explosionAnim.top = 420;
-					explosionAnim.right = 100;
-					explosionAnim.bottom = 500;
-				}*/
-
 				explosionAnim.left = curFrame*100;
 				explosionAnim.top = curRow*100+5*curRow;
 				explosionAnim.right = explosionAnim.left+100;
@@ -174,7 +139,7 @@ void Game::render() {
 				explosionTime--;
 				if (explosionTime <= 0) {
 					curFrame++;
-					explosionTime = 3;
+					explosionTime = 5;
 				}
 				if (curFrame > 4 && curRow > 4) {
 					playerPos.x = SCREEN_WIDTH/2; 
@@ -296,53 +261,6 @@ void Game::initLevel1() {
 	vector<Enemy> enemiesList; 
 }
 
-void Game::setRects() {
-	player.left=0;
-	player.right=28;
-	player.top=0;
-	player.bottom=43;
-	playerBox.left = 0;
-	playerBox.right=player.right/20;
-	playerBox.top = 0;
-	playerBox.bottom=player.bottom/20;
-	kaguya.left=454;
-	kaguya.top=1360;
-	kaguya.right=500;
-	kaguya.bottom=1420;
-	aimedShot.left=170; 
-	aimedShot.top=670;
-	aimedShot.right=230; 
-	aimedShot.bottom=740;
-	fairy.left=172; 
-	fairy.top=310;
-	fairy.right=219; 
-	fairy.bottom=371;
-	spreadShot.left=454;
-	spreadShot.top=380;
-	spreadShot.right=500;
-	spreadShot.bottom=435;
-	laser.left=127;
-	laser.right=143;
-	laser.top=0;
-	laser.bottom=16;
-	greenBullet.left = 159;
-	greenBullet.right = 175;
-	greenBullet.top = 22;
-	greenBullet.bottom = 40;
-	redBall.left = 30; 
-	redBall.top = 40;
-	redBall.right = 48; 
-	redBall.bottom = 62;
-	purpleBullet.left = 62; 
-	purpleBullet.top = 18;
-	purpleBullet.right = 78; 
-	purpleBullet.bottom = 38;
-	levelText.top = 250;
-	levelText.bottom = 300;
-	descText.top = 310;
-	descText.bottom = 360;
-}
-
 void Game::scrollBackground() {
 	offset++;
 	if (offset >= 1000)
@@ -369,11 +287,7 @@ void Game::drawPlayerBullets() {
 				explosionAnim.top = 0;
 				explosionAnim.right = 80;
 				explosionAnim.bottom = 80;
-				D3DXMatrixTranslation(&translation1,-1*playerBullets[i].getPos(0),-1*playerBullets[i].getPos(1),0);
-				D3DXMatrixScaling(&scaling, 0.5, 0.5, 1);
-				D3DXMatrixTranslation(&translation2,playerBullets[i].getPos(0),playerBullets[i].getPos(1),0);
-				D3DXMatrixMultiply(&spriteManip, &translation1, &scaling);
-				D3DXMatrixMultiply(&spriteManip, &spriteManip, &translation2);
+				spriteManip = scale(translation1, translation2, playerBullets[i].getPos(0), playerBullets[i].getPos(1), scaling, 0.5, 0.5);
 				gameSprites->SetTransform(&spriteManip);
 				gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
 				playerBullets[i].setAnimTime(playerBullets[i].getAnimTime() - 1);
@@ -382,22 +296,14 @@ void Game::drawPlayerBullets() {
 					playerBullets[i].setExploding(false);
 					playerBullets[i].setPos(-100,-100,-100);
 				}
-				
 			}
 			else {
-				D3DXMatrixTranslation(&translation1,-1*playerBullets[i].getPos(0),-1*playerBullets[i].getPos(1),0);
-				D3DXMatrixScaling(&scaling, 0.75, 0.9, 1);
-				D3DXMatrixTranslation(&translation2,playerBullets[i].getPos(0),playerBullets[i].getPos(1),0);
-				D3DXMatrixMultiply(&spriteManip, &translation1, &scaling);
-				D3DXMatrixMultiply(&spriteManip, &spriteManip, &translation2);
+				spriteManip = scale(translation1, translation2, playerBullets[i].getPos(0), playerBullets[i].getPos(1), scaling, 0.75, 0.9);
 				gameSprites->SetTransform(&spriteManip);
 				gameSprites->Draw(bulletTexture, &laser, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
 				playerBullets[i].move(0,-15,0); 
 			}
-			D3DXMatrixIdentity(&spriteManip);
-			D3DXMatrixIdentity(&rotation);
-			D3DXMatrixIdentity(&translation1);
-			D3DXMatrixIdentity(&translation2);
+			resetMatrices();
 			gameSprites->SetTransform(&spriteManip);
 			if (playerBullets[i].getPos(1) < 0)
 				playerBullets[i].setActive(false);
@@ -419,47 +325,18 @@ void Game::drawEnemyBullets() {
 			moveRate = enemyBullets[i].getTarget() - enemyBullets[i].getStartPos();
 			D3DXVec3Normalize(&moveRate, &moveRate);
 			bulletType = enemyBullets[i].getType();
-
 			angle = atan(moveRate.y/moveRate.x);
-			D3DXMatrixTranslation(&translation1,-1*enemyBullets[i].getPos(0),-1*enemyBullets[i].getPos(1),0);
-			if (bulletType == 3) {
-				D3DXMatrixRotationZ(&rotation, angle);
-				D3DXMatrixScaling(&scaling, 0.3, 0.3, 1);
-			}
-			else if (enemyBullets[i].getStartPos().x < enemyBullets[i].getTarget().x)
-				D3DXMatrixRotationZ(&rotation, angle + PI/4);
-			else D3DXMatrixRotationZ(&rotation, angle - PI/4);
-			D3DXMatrixTranslation(&translation2,enemyBullets[i].getPos(0),enemyBullets[i].getPos(1),0);
-			D3DXMatrixMultiply(&spriteManip, &translation1, &scaling);
-			D3DXMatrixMultiply(&spriteManip, &spriteManip, &rotation);
-			D3DXMatrixMultiply(&spriteManip, &spriteManip, &translation2);
+
+			rotateBullets(angle, i);
+
 			gameSprites->SetTransform(&spriteManip);
-			switch(bulletType) {
-				case 0: {
-					gameSprites->Draw(bulletTexture, &greenBullet, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
-					break;
-				}
-				case 1: {
-					gameSprites->Draw(bulletTexture, &purpleBullet, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
-					break;
-				}
-				case 2: {
-					gameSprites->Draw(bulletTexture, &redBall, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
-					break;
-				}
-				case 3: {
-					gameSprites->Draw(greenLaserTexture, NULL, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
-				}
-			}
-			
+			if (bulletType == 3)
+				gameSprites->Draw(greenLaserTexture, NULL, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
+			else gameSprites->Draw(bulletTexture, &enemyBullets[i].getInitialBounds(), NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
 			enemyBullets[i].move(moveRate.x*3, moveRate.y*3, moveRate.z*3); 
 			if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < -10)
 				enemyBullets[i].setActive(false);
-			D3DXMatrixIdentity(&spriteManip);
-			D3DXMatrixIdentity(&rotation);
-			D3DXMatrixIdentity(&scaling);
-			D3DXMatrixIdentity(&translation1);
-			D3DXMatrixIdentity(&translation2);
+			resetMatrices();
 			gameSprites->SetTransform(&spriteManip);
 		}
 	}
@@ -470,160 +347,20 @@ void Game::moveEnemies() {
 	for (int i = 0; i < enemiesList.size(); i++) {
 		int action = enemiesList[i].getAction();
 		if (enemiesList[i].isActive()) {
-			// draw enemies
-			if (enemiesList[i].isExploding()) {
-				explosionAnim.left = 0;
-				explosionAnim.top = 0;
-				explosionAnim.right = 80;
-				explosionAnim.bottom = 80;
-				gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
-				enemiesList[i].setAnimTime(enemiesList[i].getAnimTime() - 1);
-				if (enemiesList[i].getAnimTime() <= 0) {
-					enemiesList[i].setActive(false);
-					enemiesList[i].setExploding(false);
-					enemiesList[i].setPos(-100, -100, -100);
-				}
-			}
-			else {
-				switch(enemiesList[i].getType()) {
-					case 0: {
-						gameSprites->Draw(enemyTexture, &aimedShot, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
-						break;
-					}
-					case 1: {
-						gameSprites->Draw(enemyTexture, &kaguya, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
-						break;
-					}
-					case 2: {
-						gameSprites->Draw(enemyTexture, &fairy, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
-						break;
-					}
-					case 3: {
-						gameSprites->Draw(enemyTexture, &spreadShot, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
-						break;
-					}
-				}
-			}
-			if (enemiesList[i].getPos(1) >= 0) { 
-				for (int j = 0; j < 100; j++) {
-					if (enemiesList[i].inBounds(playerBullets[j]) && playerBullets[j].isActive() && enemiesList[i].getPos(1) > 0 && !enemiesList[i].isExploding()) {
-						if (enemiesList[i].getLife() <= 0) {
-							enemiesList[i].setExploding(true);
-						}
-						else enemiesList[i].setLife(enemiesList[i].getLife()-0.25f);
-						playerBullets[j].setExploding(true);
-					}
-				}
-			}
-
+			drawEnemy(i);
 			// move enemies
 			switch(action) {
 				case 0: {
-					moves.y = 5;
-					D3DXVec3CatmullRom(&enemyPos, &D3DXVECTOR3(enemiesList[i].getStartPos().x, enemiesList[i].getStartPos().y, 0),
-												&D3DXVECTOR3(enemiesList[i].getStartPos().x, enemiesList[i].getStartPos().y, 0),
-												&D3DXVECTOR3(enemiesList[i].getMid().x + 40*(i%5), enemiesList[i].getMid().y, 0),
-												&D3DXVECTOR3(enemiesList[i].getMid().x + 40*(i%5), enemiesList[i].getMid().y, 0), enemiesList[i].getS());
-					enemiesList[i].setS(enemiesList[i].getS() + 0.005*enemiesList[i].getSpeed());
-					enemiesList[i].setPos(enemyPos.x, enemyPos.y, enemyPos.z);
-					enemiesList[i].setWaitTime(0);
-					if (enemiesList[i].getCooldown() <= 0) {
-						if (enemiesList[i].getType() == 0)
-							enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), 1000, i, calcHitbox(greenBullet), 0);
-						if (enemiesList[i].getType() == 1)
-							enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), 1000, i, calcHitbox(purpleBullet), 1);
-						if (enemiesList[i].getType() == 3) {
-							D3DXVECTOR3 shot = playerPos;
-							for (int j = 0; j < 10; j++) {
-								enemiesList[i].aimFire(enemyBullets, shot, enemiesList[i].getPos(), 1000, i, calcHitbox(purpleBullet), 1);
-								shot = rotateVector(shot, PI/12, 1);
-								enemiesList[i].setCooldown(50);
-							}
-						}
-						if (enemiesList[i].getType() != 3)
-							enemiesList[i].setCooldown(20);
-					}
-					else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
-					if (enemiesList[i].getS() >= 0.95)
-						enemiesList[i].setAction(1);
+					advance(i);
 					break;
 				}
 				case 1: {
-					D3DXVECTOR3 shot = playerPos;
-					shot.z = 0;
-					if (enemiesList[i].getType() == 1) {
-						for (int j = 0; j < 8; j++) {
-							if (j == 0 || j == 4)
-								shot.x = 0;
-							if (j == 1 || j == 2 || j == 3)
-								shot.x = 1;
-							if (j == 5 || j == 6 || j == 7)
-								shot.x = -1;
-							if (j == 0 || j == 1 || j == 7)
-								shot.y = 1;
-							if (j == 2 || j == 6)
-								shot.y = 0;
-							if (j == 3 || j == 4 || j == 5)
-								shot.y = -1;
-							if (enemiesList[i].getCooldown() <= 0) {
-								enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), enemiesList[i].getPos(), 1000, i, redBall, 2);
-								enemiesList[i].setCooldown(20);
-							}
-							else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
-							//break;
-						}
-						enemiesList[i].wait();
-						if (enemiesList[i].getWaitTime() >= 100)
-							enemiesList[i].setAction(2);
-					}
-					else if (enemiesList[i].getType() == 2) {
-						if (enemiesList[i].getCooldown() <= 0) {
-							for (int j = 0; j < 3; j++) {	
-								if (j == 0) {
-									shot.x = -2/sqrt(5.0f);
-									shot.y = 1/sqrt(5.0f);
-									enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)-70, shot.y+enemiesList[i].getPos(1)+60, shot.z), 
-										D3DXVECTOR3(enemiesList[i].getPos(0)-70, enemiesList[i].getPos(1)+60, 0), 1000, i, calcHitbox(redBall), 3);
-								}
-								if (j == 1) {
-									shot.x = 0;
-									shot.y = 1;
-									enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+50, shot.y+enemiesList[i].getPos(1), shot.z), 
-										D3DXVECTOR3(enemiesList[i].getPos(0)+50, enemiesList[i].getPos(1), 0), 1000, i, calcHitbox(redBall), 3);
-								}
-								if (j == 2) {
-									shot.x = 2/sqrt(5.0f);
-									shot.y = 1/sqrt(5.0f);
-									enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), 
-										enemiesList[i].getPos(), 1000, i, calcHitbox(redBall), 3);
-								}
-								//shot = rotateVector(shot, PI/4, 0);											
-								enemiesList[i].setCooldown(50);	
-							}
-						}
-						else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
-						enemiesList[i].wait();
-						if (enemiesList[i].getWaitTime() >= 300)
-							enemiesList[i].setAction(2);
-					}
-					else enemiesList[i].setAction(2);
+					waiting(i);
 					break;
 				}
 				case 2: {
 					moves.y = -5;
-					/*if (enemiesList[i].getCooldown() <= 0) {
-						if (enemiesList[i].getType() == 1)
-							enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), 1000, i, calcHitbox(purpleBullet), 1);
-						else enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), 1000, i, calcHitbox(greenBullet), 0);
-						enemiesList[i].setCooldown(20);
-					}
-					else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);*/
-					D3DXVec3CatmullRom(&enemyPos, &D3DXVECTOR3(enemiesList[i].getEnd().x, enemiesList[i].getEnd().y, 0),
-												&D3DXVECTOR3(enemiesList[i].getEnd().x, enemiesList[i].getEnd().y, 0),
-												&D3DXVECTOR3(enemiesList[i].getMid().x + 40*(i%5), enemiesList[i].getMid().y, 0),
-												&D3DXVECTOR3(enemiesList[i].getMid().x + 40*(i%5), enemiesList[i].getMid().y, 0), enemiesList[i].getS());
-					enemiesList[i].setS(enemiesList[i].getS() - 0.005*enemiesList[i].getSpeed());
-					enemiesList[i].setPos(enemyPos.x, enemyPos.y, enemyPos.z);
+					enemiesList[i].moveTo(0);
 					if (enemiesList[i].getPos(0) < 0 || enemiesList[i].getPos(1) < 0 || enemiesList[i].getPos(0) > SCREEN_WIDTH || enemiesList[i].getPos(1) > SCREEN_HEIGHT) {
    						enemiesList[i].setActive(false);
 					}
@@ -660,6 +397,39 @@ D3DXVECTOR3 Game::rotateVector(D3DXVECTOR3 vec, double angle, size_t direction) 
 	}
 	vec.z = 0;
 	return vec;
+}
+
+D3DXMATRIX Game::scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, int y, D3DXMATRIX scaling, float xFactor, float yFactor) {
+	D3DXMATRIX resultMatrix;
+	D3DXMatrixTranslation(&translation1, -1*x, -1*y, 0);
+	D3DXMatrixScaling(&scaling, xFactor, yFactor, 1);
+	D3DXMatrixTranslation(&translation2, x, y, 0);
+	D3DXMatrixMultiply(&resultMatrix, &translation1, &scaling);
+	D3DXMatrixMultiply(&resultMatrix, &resultMatrix, &translation2);
+	return resultMatrix;
+}
+
+void Game::rotateBullets(double angle, int i) {
+	D3DXMatrixTranslation(&translation1,-1*enemyBullets[i].getPos(0),-1*enemyBullets[i].getPos(1),0);
+	if (enemyBullets[i].getType() == 3) {
+		D3DXMatrixRotationZ(&rotation, angle);
+		D3DXMatrixScaling(&scaling, 0.3, 0.3, 1);
+	}
+	else if (enemyBullets[i].getStartPos().x < enemyBullets[i].getTarget().x)
+		D3DXMatrixRotationZ(&rotation, angle + PI/4);
+	else D3DXMatrixRotationZ(&rotation, angle - PI/4);
+	D3DXMatrixTranslation(&translation2,enemyBullets[i].getPos(0),enemyBullets[i].getPos(1),0);
+	D3DXMatrixMultiply(&spriteManip, &translation1, &scaling);
+	D3DXMatrixMultiply(&spriteManip, &spriteManip, &rotation);
+	D3DXMatrixMultiply(&spriteManip, &spriteManip, &translation2);
+}
+
+void Game::resetMatrices() {
+	D3DXMatrixIdentity(&spriteManip);
+	D3DXMatrixIdentity(&rotation);
+	D3DXMatrixIdentity(&scaling);
+	D3DXMatrixIdentity(&translation1);
+	D3DXMatrixIdentity(&translation2);
 }
 
 void Game::drawTitle() {
@@ -710,7 +480,7 @@ void Game::level1Script() {
 		makeEnemy(175, -35, 0, aimedShot, 0, 60, 225, -30, 300, 50, 2);
 		makeEnemy(200, -25, 0, aimedShot, 0, 70, 220, -30, 300, 50, 2);
 		makeEnemy(225, -20, 0, aimedShot, 0, 80, 225, -30, 300, 50, 2);
-		makeEnemy(225, -20, 0, kaguya, 1, 100, 200, -30, 300, 250, 2);
+		makeEnemy(225, -20, 0, kaguya, 1, 150, 200, -30, 300, 250, 2);
 		makeEnemy(250, -40, 0, aimedShot, 0, 95, 218, -30, 300, 50, 2);
 		makeEnemy(275, -35, 0, aimedShot, 0, 100, 225, -30, 300, 50, 2);
 		makeEnemy(300, -25, 0, aimedShot, 0, 110, 220, -30, 300, 50, 2);
@@ -722,7 +492,7 @@ void Game::level1Script() {
 		makeEnemy(575, -35, 0, aimedShot, 0, 560, 225, SCREEN_WIDTH, 300, 50, 2);
 		makeEnemy(600, -25, 0, aimedShot, 0,  570, 220, SCREEN_WIDTH, 300, 50, 2);
 		makeEnemy(625, -20, 0, aimedShot, 0, 580, 225, SCREEN_WIDTH, 300, 50, 2);
-		makeEnemy(625, -20, 0, kaguya, 1, 590, 200, SCREEN_WIDTH, 300, 250, 2);
+		makeEnemy(625, -20, 0, kaguya, 1, 500, 200, SCREEN_WIDTH, 300, 250, 2);
 		makeEnemy(650, -40, 0, aimedShot, 0, 600, 218, SCREEN_WIDTH, 300, 50, 2);
 		makeEnemy(670, -35, 0, aimedShot, 0, 610, 225, SCREEN_WIDTH, 300, 50, 2);
 		makeEnemy(700, -25, 0, aimedShot, 0,  620, 220, SCREEN_WIDTH, 300, 50, 2);
@@ -853,20 +623,20 @@ void Game::level1Script() {
 		}
 	}
 
-	if (leveltime >= 2600 && leveltime < 2700) {
-		for (int i = 2600, j = 0; i < 2700; i+=10, j+=10) {
+	if (leveltime >= 2600 && leveltime < 2650) {
+		for (int i = 2600, j = 0; i < 2650; i+=10, j+=10) {
 			if (leveltime == i) {
-				makeEnemy(600, -10, 0, fairy, 2, 600, 5*j, 600, -10, 500, 2);
+				makeEnemy(600, -10, 0, fairy, 2, 600, 10*j, 600, -10, 500, 2);
 				makeEnemy(100, -10, 0, spreadShot, 3, 100, 250, -10, 300, 25, 2);
 			}
 		}
 	}
 
 
-	if (leveltime >= 2900 && leveltime < 3000) {
-		for (int i = 2900, j = 0; i < 3000; i+=10, j+=10) {
+	if (leveltime >= 2900 && leveltime < 2950) {
+		for (int i = 2900, j = 0; i < 2950; i+=10, j+=10) {
 			if (leveltime == i) {
-				makeEnemy(100, -10, 0, fairy, 2, 100, 5*j, 100, -10, 500, 2);
+				makeEnemy(100, -10, 0, fairy, 2, 100, 10*j, 100, -10, 500, 2);
 				makeEnemy(700, -10, 0, spreadShot, 3, 700, 250, 1000, 300, 25, 2);
 			}
 		}
@@ -914,62 +684,175 @@ void Game::level1Script() {
 		makeEnemy(SCREEN_WIDTH/2 - 150, -20, 0, kaguya, 1, SCREEN_WIDTH/2 - 150, 250, SCREEN_WIDTH/2 - 100, -20, 250, 2);
 		makeEnemy(SCREEN_WIDTH/2 + 200, -20, 0, kaguya, 1, SCREEN_WIDTH/2 + 200, 250, SCREEN_WIDTH/2 + 100, -20, 250, 2);
 	}
-	
-	/*if (leveltime >= 700 && leveltime < 730) {
-		for (int i = 700; i < 800; i+=10) {
-			if (leveltime == i) {
-				makeEnemy(0, 200, 0, aimedShot, 3, 1000, 250, 1000, 200, 25);
+
+	if (leveltime == 200) {
+		makeEnemy(0, -10, 0, boss, -1, 300, 200, 0, 0, 50000, 2);
+	}
+}
+
+void Game::setRects() {
+	player.left=0;
+	player.right=28;
+	player.top=0;
+	player.bottom=43;
+	playerBox.left = 0;
+	playerBox.right=player.right/20;
+	playerBox.top = 0;
+	playerBox.bottom=player.bottom/20;
+	kaguya.left=454;
+	kaguya.top=1360;
+	kaguya.right=500;
+	kaguya.bottom=1420;
+	aimedShot.left=170; 
+	aimedShot.top=670;
+	aimedShot.right=230; 
+	aimedShot.bottom=740;
+	fairy.left=172; 
+	fairy.top=310;
+	fairy.right=219; 
+	fairy.bottom=371;
+	spreadShot.left=454;
+	spreadShot.top=380;
+	spreadShot.right=500;
+	spreadShot.bottom=435;
+	boss.left=445;
+	boss.top=991;
+	boss.right=502;
+	boss.bottom=1050;
+	laser.left=127;
+	laser.right=143;
+	laser.top=0;
+	laser.bottom=16;
+	greenBullet.left = 159;
+	greenBullet.right = 175;
+	greenBullet.top = 22;
+	greenBullet.bottom = 40;
+	redBall.left = 30; 
+	redBall.top = 40;
+	redBall.right = 48; 
+	redBall.bottom = 62;
+	purpleBullet.left = 62; 
+	purpleBullet.top = 20;
+	purpleBullet.right = 78; 
+	purpleBullet.bottom = 38;
+	levelText.top = 250;
+	levelText.bottom = 300;
+	descText.top = 310;
+	descText.bottom = 360;
+}
+
+void Game::drawEnemy(int i) {
+	// draw enemies
+	if (enemiesList[i].isExploding()) {
+		explosionAnim.left = 0;
+		explosionAnim.top = 0;
+		explosionAnim.right = 80;
+		explosionAnim.bottom = 80;
+		gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+		enemiesList[i].setAnimTime(enemiesList[i].getAnimTime() - 1);
+		if (enemiesList[i].getAnimTime() <= 0) {
+			enemiesList[i].setActive(false);
+			enemiesList[i].setExploding(false);
+			enemiesList[i].setPos(-100, -100, -100);
+		}
+	}
+	else {
+		gameSprites->Draw(enemyTexture, &enemiesList[i].getInitialBounds(), NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+	}
+	if (enemiesList[i].getPos(1) >= 0) { 
+		for (int j = 0; j < 100; j++) {
+			if (enemiesList[i].inBounds(playerBullets[j]) && playerBullets[j].isActive() && enemiesList[i].getPos(1) > 0 && !enemiesList[i].isExploding()) {
+				if (enemiesList[i].getLife() <= 0) {
+					enemiesList[i].setExploding(true);
+				}
+				else enemiesList[i].setLife(enemiesList[i].getLife()-0.25f);
+				playerBullets[j].setExploding(true);
 			}
 		}
 	}
+}
 
-	if (leveltime >= 850 && leveltime < 900) {
-		for (int i = 850; i < 900; i+=10) {
-			if (leveltime == i) {
-				makeEnemy(900, 200, 0, aimedShot, 0, -100, 250, -100, 200, 25);
+void Game::advance(int i) {
+	moves.y = 5;
+	enemiesList[i].moveTo(1);
+	if (enemiesList[i].getCooldown() <= 0) {
+		if (enemiesList[i].getType() == 0)
+			enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), 1000, i, calcHitbox(greenBullet), greenBullet, 0);
+		if (enemiesList[i].getType() == 1)
+			enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), 1000, i, calcHitbox(purpleBullet), purpleBullet, 1);
+		if (enemiesList[i].getType() == 3) {
+			D3DXVECTOR3 shot = playerPos;
+			for (int j = 0; j < 10; j++) {
+				enemiesList[i].aimFire(enemyBullets, shot, enemiesList[i].getPos(), 1000, i, calcHitbox(purpleBullet), purpleBullet, 1);
+				shot = rotateVector(shot, PI/12, 1);
+				enemiesList[i].setCooldown(50);
 			}
 		}
+		if (enemiesList[i].getType() != 3)
+			enemiesList[i].setCooldown(20);
 	}
+	else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
+	if (enemiesList[i].getS() >= 0.95)
+		enemiesList[i].setAction(1);
+}
 
-	if (leveltime == 900) {
-		makeEnemy(340, -30, 0, fairy, 2, 300, 130, 0, 0, 1000);
-		makeEnemy(360, -30, 0, fairy, 2, 400, 130, SCREEN_WIDTH, 0, 1000);
+void Game::waiting(int i) {
+	D3DXVECTOR3 shot = playerPos;
+	shot.z = 0;
+	if (enemiesList[i].getType() == 1) {
+		for (int j = 0; j < 8; j++) {
+			if (j == 0 || j == 4)
+				shot.x = 0;
+			if (j == 1 || j == 2 || j == 3)
+				shot.x = 1;
+			if (j == 5 || j == 6 || j == 7)
+				shot.x = -1;
+			if (j == 0 || j == 1 || j == 7)
+				shot.y = 1;
+			if (j == 2 || j == 6)
+				shot.y = 0;
+			if (j == 3 || j == 4 || j == 5)
+				shot.y = -1;
+			if (enemiesList[i].getCooldown() <= 0) {
+				enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), enemiesList[i].getPos(), 1000, i, redBall, redBall, 2);
+				enemiesList[i].setCooldown(20);
+			}
+			else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
+			//break;
+		}
+		enemiesList[i].wait();
+		if (enemiesList[i].getWaitTime() >= 100)
+			enemiesList[i].setAction(2);
 	}
-
-	if (leveltime == 1000) {
-		makeEnemy(250, -25, 0, aimedShot, 3, 230, 215, -30, 300, 50);
-		makeEnemy(275, -35, 0, aimedShot, 3, 250, 225, -30, 300, 50);
-		makeEnemy(300, -25, 0, aimedShot, 3, 260, 220, -30, 300, 50);
-		makeEnemy(325, -20, 0, aimedShot, 3, 325, 225, -30, 300, 50);
-		makeEnemy(350, -40, 0, aimedShot, 3, 350, 218, -30, 300, 50);
-		makeEnemy(375, -35, 0, aimedShot, 3, 400, 225, -30, 300, 50);
-		makeEnemy(400, -25, 0, aimedShot, 3, 425, 220, -30, 300, 50);
-		makeEnemy(425, -20, 0, aimedShot, 3, 450, 225, -30, 300, 50);
-	}
-
-	if (leveltime >= 1050 && leveltime < 1150) {
-		for (int i = 1050; i < 1150; i+=10) {
-			if (leveltime == i) {
-				makeEnemy(0, 200, 0, aimedShot, 3, 1000, 250, 1000, 200, 25);
-				makeEnemy(900, 200, 0, aimedShot, 3, -100, 250, -100, 200, 25);
+	else if (enemiesList[i].getType() == 2) {
+		if (enemiesList[i].getCooldown() <= 0) {
+			for (int j = 0; j < 3; j++) {	
+				if (j == 0) {
+					shot.x = -2/sqrt(5.0f);
+					shot.y = 1/sqrt(5.0f);
+					enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)-70, shot.y+enemiesList[i].getPos(1)+60, shot.z), 
+						D3DXVECTOR3(enemiesList[i].getPos(0)-70, enemiesList[i].getPos(1)+60, 0), 1000, i, calcHitbox(redBall), redBall, 3);
+				}
+				if (j == 1) {
+					shot.x = 0;
+					shot.y = 1;
+					enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+50, shot.y+enemiesList[i].getPos(1), shot.z), 
+						D3DXVECTOR3(enemiesList[i].getPos(0)+50, enemiesList[i].getPos(1), 0), 1000, i, calcHitbox(redBall), redBall, 3);
+				}
+				if (j == 2) {
+					shot.x = 2/sqrt(5.0f);
+					shot.y = 1/sqrt(5.0f);
+					enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), 
+						enemiesList[i].getPos(), 1000, i, calcHitbox(redBall), redBall, 3);
+				}
+				//shot = rotateVector(shot, PI/4, 0);											
+				enemiesList[i].setCooldown(50);	
 			}
 		}
+		else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
+		enemiesList[i].wait();
+		if (enemiesList[i].getWaitTime() >= 300)
+			enemiesList[i].setAction(2);
 	}
-
-	if (leveltime == 1500) {
-		makeEnemy(250, -25, 0, aimedShot, 3, 230, 215, -30, 300, 50);
-		makeEnemy(275, -35, 0, aimedShot, 3, 250, 225, -30, 300, 50);
-		makeEnemy(300, -25, 0, aimedShot, 3, 260, 220, -30, 300, 50);
-		makeEnemy(325, -20, 0, aimedShot, 3, 325, 225, -30, 300, 50);
-		makeEnemy(350, -40, 0, aimedShot, 3, 350, 218, -30, 300, 50);
-		makeEnemy(375, -35, 0, aimedShot, 3, 400, 225, -30, 300, 50);
-		makeEnemy(400, -25, 0, aimedShot, 3, 425, 220, -30, 300, 50);
-		makeEnemy(425, -20, 0, aimedShot, 3, 450, 225, -30, 300, 50);
-	}
-
-	if (leveltime == 50) {
-		makeEnemy(240, -30, 0, fairy, 2, 200, 230, 0, 0, 1000);
-		makeEnemy(300, -30, 0, fairy, 2, 300, 230, SCREEN_WIDTH, 0, 1000);
-		makeEnemy(400, -30, 0, fairy, 2, 450, 230, SCREEN_WIDTH, 0, 1000);
-	}*/
+	else enemiesList[i].setAction(2);
 }

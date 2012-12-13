@@ -25,6 +25,22 @@ void Enemy::waitAt(int time, int pos) {
 			waitTime++;
 }
 
+void Enemy::moveTo(int dest) {
+	D3DXVECTOR3 newPos;
+	if (dest == 1) {
+		D3DXVec3CatmullRom(&newPos, &this->getStartPos(), &this->getStartPos(), &mid, &mid, this->getS());
+		setS(this->getS() + 0.005*this->getSpeed());
+		setPos(newPos.x, newPos.y, newPos.z);
+		setWaitTime(0);
+	}
+	if (dest == 0) {
+		D3DXVec3CatmullRom(&newPos, &end, &end, &mid, &mid, this->getS());
+		setS(this->getS() - 0.005*this->getSpeed());
+		setPos(newPos.x, newPos.y, newPos.z);
+		setWaitTime(0);
+	}
+}
+
 int Enemy::getWaitTime() {
 	return waitTime;
 }
@@ -73,17 +89,11 @@ void Enemy::setEnd(D3DXVECTOR3 _end) {
 	end = _end;
 }
 
-void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, int type_) {
+void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, RECT init_, int type_) {
 	for (int i=0; i < size; i++) {
 		if (!enemyBullets[i].isActive()) {
-			enemyBullets[i].setActive(true);
-			enemyBullets[i].setBounds(bounds);
-			enemyBullets[i].setOwner(owner);
-			enemyBullets[i].setType(type_);
-			enemyBullets[i].setStartPos(startPos);
-			enemyBullets[i].setPos(startPos.x, startPos.y, startPos.z);
+			enemyBullets[i].init(startPos.x, startPos.y, startPos.z, bounds, init_, type_, 1);
 			D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x - this->getPos(0), targetPos.y - this->getPos(1), 0);
-			//D3DXVec3Normalize(&target, &target);
 			enemyBullets[i].setTarget(targetPos);
 			break;
 		}
