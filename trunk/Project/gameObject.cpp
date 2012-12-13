@@ -12,6 +12,33 @@ void GameObject::init(int x, int y, int z, RECT bounds_, int type_, float speed_
 	startPos.y = y;
 	startPos.z = z;
 	s = 0.0f;
+	initialBounds.left = bounds_.left;
+	initialBounds.top = bounds_.top;
+	initialBounds.right = bounds_.right;
+	initialBounds.bottom = bounds_.bottom;
+	bounds.left = 0;
+	bounds.top = 0;
+	bounds.right = bounds_.right - bounds_.left;
+	bounds.bottom = bounds_.bottom - bounds_.top;
+	active = true;
+	exploding = false;
+	animTime = 10;
+	type = type_;
+	speed = speed_;
+}
+
+void GameObject::init(int x, int y, int z, RECT bounds_, RECT init_, int type_, float speed_) {
+	pos.x = x;
+	pos.y = y;
+	pos.z = z;
+	startPos.x = x;
+	startPos.y = y;
+	startPos.z = z;
+	s = 0.0f;
+	initialBounds.left = init_.left;
+	initialBounds.top = init_.top;
+	initialBounds.right = init_.right;
+	initialBounds.bottom = init_.bottom;
 	bounds.left = 0;
 	bounds.top = 0;
 	bounds.right = bounds_.right - bounds_.left;
@@ -62,15 +89,6 @@ void GameObject::move(int x, int y, int z) {
 	pos.z += z;
 }
 
-void GameObject::moveTo(int dest, D3DXVECTOR3 rate) {
-	if (dest > 0)
-		if (pos.y < dest) 
-			this->move(rate.x,rate.y,rate.z);
-	if (dest < 0)
-		if (pos.y > dest) 
-			this->move(rate.x,rate.y,rate.z);
-}
-
 D3DXVECTOR3 GameObject::getStartPos() {
 	return startPos;
 }
@@ -96,6 +114,10 @@ void GameObject::setBounds(RECT bounds_) {
 
 RECT GameObject::getBounds() {
 	return bounds;
+}
+
+RECT GameObject::getInitialBounds() {
+	return initialBounds;
 }
 	
 bool GameObject::inBounds(GameObject test) {

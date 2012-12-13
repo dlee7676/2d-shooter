@@ -51,7 +51,8 @@ private:
 	D3DXVECTOR3 enemyPos;
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
-	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, explosionAnim, levelText, descText;
+	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, boss,
+		explosionAnim, levelText, descText;
 	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
@@ -79,7 +80,13 @@ public:
 	void drawEnemyBullets();
 	void moveEnemies();
 	void drawTitle();
+	void drawEnemy(int i);
+	void advance(int i);
+	void waiting(int i);
+	void resetMatrices();
+	void rotateBullets(double angle, int i);
 	RECT calcHitbox(RECT bounds);
+	D3DXMATRIX Game::scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, int y, D3DXMATRIX scaling, float xFactor, float yFactor);
 };
 
 #endif

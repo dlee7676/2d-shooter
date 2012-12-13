@@ -8,7 +8,7 @@ class GameObject {
 
 private:
 	D3DXVECTOR3 pos, startPos;
-	RECT bounds;
+	RECT bounds, initialBounds;
 	bool active, exploding;
 	float s;
 	int animTime, type;
@@ -17,16 +17,16 @@ private:
 public:
 	GameObject::GameObject();
 	void init(int x, int y, int z, RECT bounds_, int type_, float speed_);
-	void init(int x, int y, int z, RECT bounds_, int type_, int midX, int midY, int endX, int endY);
+	void init(int x, int y, int z, RECT bounds_, RECT init_, int type_, float speed_);
 	bool isActive();
 	void setActive(bool setting);
 	int getPos(int coord);
 	D3DXVECTOR3 getPos();
 	void setPos(int x, int y, int z);
 	void move(int x, int y, int z);
-	void moveTo(int dest, D3DXVECTOR3 rate);
 	void setBounds(RECT bounds_);
 	RECT getBounds();
+	RECT getInitialBounds();
 	bool inBounds(GameObject test);
 	D3DXVECTOR3 getStartPos();
 	void setStartPos(D3DXVECTOR3 _startPos);
@@ -40,6 +40,7 @@ public:
 	int getType();
 	void setType(int type_);
 	float getSpeed();
+	void setSpeed(float speed_);
 };
 	
 #endif
