@@ -81,6 +81,8 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="particle.cpp" />
+    <ClCompile Include="particleSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h" />
@@ -88,6 +90,8 @@
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="particle.h" />
+    <ClInclude Include="particleSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,6 +7,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <vector>
+#include <ctime>
 #include "bullet.h"
 #include "enemy.h"
 
@@ -52,7 +53,7 @@ private:
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
 	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, boss,
-		explosionAnim, levelText, descText;
+		explosionAnim, levelText, descText, greenLaser;
 	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
@@ -83,6 +84,7 @@ public:
 	void drawEnemy(int i);
 	void advance(int i);
 	void waiting(int i);
+	void bossPattern(int i, int interval);
 	void resetMatrices();
 	void rotateBullets(double angle, int i);
 	RECT calcHitbox(RECT bounds);
