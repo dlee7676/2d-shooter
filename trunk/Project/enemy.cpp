@@ -1,6 +1,6 @@
 #include "enemy.h"
 
-Enemy::Enemy() : GameObject(), action(0), waitTime(0) {
+Enemy::Enemy() : GameObject(), heading(0,0,0), action(0), waitTime(0) {
 
 }
 
@@ -71,6 +71,14 @@ float Enemy::getLife() {
 
 void Enemy::setLife(float value) {
 	life = value;
+}
+
+D3DXVECTOR3 Enemy::getHeading() {
+	return heading;
+}
+
+void Enemy::setHeading(D3DXVECTOR3 _heading) {
+	heading = _heading;
 }
 
 D3DXVECTOR3 Enemy::getMid() {

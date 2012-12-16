@@ -9,7 +9,7 @@ class Enemy : public GameObject {
 private:
 	int action, waitTime, cooldown;
 	float life;
-	D3DXVECTOR3 mid, end;
+	D3DXVECTOR3 mid, end, heading;
 
 public:
 	Enemy::Enemy();
@@ -25,6 +25,8 @@ public:
 	void setAction(int command);
 	float getLife();
 	void setLife(float value);
+	D3DXVECTOR3 getHeading();
+	void setHeading(D3DXVECTOR3 _heading);
 	D3DXVECTOR3 getMid();
 	void setMid(D3DXVECTOR3 _mid);
 	D3DXVECTOR3 getEnd();
