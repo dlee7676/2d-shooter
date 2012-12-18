@@ -62,6 +62,7 @@ private:
 	GameObject playerObject;
 	int leveltime, offset, curFrame, curRow, explosionTime, moveRate;
 	int cooldown;
+	int curAlpha;
 
 public:
 	void setHwnd(HWND _hwnd);
