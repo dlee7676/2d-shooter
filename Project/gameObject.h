@@ -28,13 +28,14 @@ public:
 	RECT getBounds();
 	RECT getInitialBounds();
 	bool inBounds(GameObject test);
+	bool inBounds(RECT test, int x, int y);
+	bool GameObject::inBounds(RECT test, int x, int y, int xMod, int yMod); 
 	D3DXVECTOR3 getStartPos();
 	void setStartPos(D3DXVECTOR3 _startPos);
 	float getS();
 	void setS(float s_);
 	bool isExploding();
 	void setExploding(bool exploding_);
-	bool inBounds(RECT test, int x, int y);
 	int getAnimTime();
 	void setAnimTime(int time);
 	int getType();

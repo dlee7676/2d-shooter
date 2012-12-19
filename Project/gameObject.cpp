@@ -135,6 +135,13 @@ bool GameObject::inBounds(RECT test, int x, int y) {
 	else return true;
 }
 
+bool GameObject::inBounds(RECT test, int x, int y, int xMod, int yMod) {
+	if (test.right + x < bounds.left + pos.x || test.bottom + y < bounds.top + pos.y || 
+		test.left + x > bounds.right + pos.x || test.top + y > bounds.bottom + pos.y)
+		return false;
+	else return true;
+}
+
 bool GameObject::isExploding() {
 	return exploding;
 }
