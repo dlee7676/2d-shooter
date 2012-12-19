@@ -13,6 +13,7 @@ void Enemy::init(int x, int y, int z, RECT bounds_, int type_, int midX, int mid
 	end.y = endY;
 	end.z = 0;
 	life = life_;
+	targeting = D3DXVECTOR3(0,1,0);
 }
 
 void Enemy::wait() {
@@ -79,6 +80,14 @@ D3DXVECTOR3 Enemy::getHeading() {
 
 void Enemy::setHeading(D3DXVECTOR3 _heading) {
 	heading = _heading;
+}
+
+D3DXVECTOR3 Enemy::getTargeting() {
+	return targeting;
+}
+
+void Enemy::setTargeting(D3DXVECTOR3 _targeting) {
+	targeting = _targeting;
 }
 
 D3DXVECTOR3 Enemy::getMid() {

@@ -80,6 +80,8 @@ public:
 	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 	void drawPlayerBullets();
 	void drawEnemyBullets();
+	void rotatingFire(int i, int direction);
+	void fireSpiral(double t);
 	void moveEnemies();
 	void drawTitle();
 	void drawEnemy(int i);
