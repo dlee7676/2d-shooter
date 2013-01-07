@@ -10,6 +10,7 @@
 #include <ctime>
 #include "bullet.h"
 #include "enemy.h"
+#include "particleSystem.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ using namespace std;
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 600
 #define PI atan(1.0f)*4
+#define MAX_BULLETS 1000
 
 class Game {
 
@@ -53,14 +55,16 @@ private:
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
 	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, boss,
-		explosionAnim, levelText, descText, greenLaser;
+		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle;
 	bool firing, exploding, focus;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
+	Enemy tester;
 	vector<Enemy> enemiesList;
+	ParticleSystem particleHandler;
 	GameObject playerObject;
-	int leveltime, offset, curFrame, curRow, explosionTime, moveRate;
+	int leveltime, offset, curFrame, curRow, explosionTime, moveRate, fireDirection;
 	int cooldown;
 	int curAlpha;
 
@@ -76,11 +80,12 @@ public:
 	void initLevel1();
 	void setRects();
 	void scrollBackground();
+	void sceneryParticles();
 	void level1Script();
 	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 	void drawPlayerBullets();
 	void drawEnemyBullets();
-	void rotatingFire(int i, int direction);
+	void rotatingFire(Enemy* i, int direction, double angle);
 	void fireSpiral(double t);
 	void moveEnemies();
 	void drawTitle();
