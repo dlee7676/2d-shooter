@@ -25,6 +25,7 @@ public:
 	void setPos(int x, int y, int z);
 	void move(int x, int y, int z);
 	void setBounds(RECT bounds_);
+	void setBounds(RECT bounds_, int x, int y); 
 	RECT getBounds();
 	RECT getInitialBounds();
 	bool inBounds(GameObject test);

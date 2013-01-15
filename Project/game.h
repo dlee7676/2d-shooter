@@ -48,6 +48,7 @@ private:
 	D3DXVECTOR3 playerPos;
 	D3DXVECTOR3 moves;
 	D3DXVECTOR3 bgPos;
+	D3DXVECTOR3 playerTarget;
 	D3DXMATRIX spriteManip;
 	D3DXMATRIX rotation, scaling;
 	D3DXMATRIX translation1, translation2;
@@ -55,18 +56,19 @@ private:
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
 	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, boss,
-		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle;
-	bool firing, exploding, focus;
+		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;
+	bool firing, exploding, focus, chaotic, spiral, spellcard1, spellcard2;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
-	Enemy tester;
+	vector<Enemy> subunits;
 	vector<Enemy> enemiesList;
 	ParticleSystem particleHandler;
 	GameObject playerObject;
-	int leveltime, offset, curFrame, curRow, explosionTime, moveRate, fireDirection;
+	int leveltime, offset, curFrame, curRow, explosionTime, moveRate, fireDirection, hits;
 	int cooldown;
 	int curAlpha;
+	double currentT;
 
 public:
 	void setHwnd(HWND _hwnd);
@@ -85,8 +87,10 @@ public:
 	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 	void drawPlayerBullets();
 	void drawEnemyBullets();
-	void rotatingFire(Enemy* i, int direction, double angle);
-	void fireSpiral(double t);
+	void rotatingFire(Enemy* i, int direction, double angle, int type);
+	void fireSpiral(double t, Enemy* enemy_, int size);
+	void moveSpiral(int i);
+	void chaosSpiral(int i);
 	void moveEnemies();
 	void drawTitle();
 	void drawEnemy(int i);

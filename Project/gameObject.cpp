@@ -112,6 +112,14 @@ void GameObject::setBounds(RECT bounds_) {
 	bounds.bottom = bounds_.bottom - bounds_.top;
 }
 
+void GameObject::setBounds(RECT bounds_, int x, int y) {
+	bounds.left = x;
+	bounds.top = y;
+	bounds.right = bounds_.right - bounds_.left;
+	bounds.bottom = bounds_.bottom - bounds_.top;
+}
+
+
 RECT GameObject::getBounds() {
 	return bounds;
 }

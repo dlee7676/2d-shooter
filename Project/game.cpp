@@ -138,7 +138,6 @@ void Game::render() {
 
 			// draw background
 			scrollBackground();
-			sceneryParticles();
 
 			// draw player
 			if (exploding) {
@@ -167,9 +166,11 @@ void Game::render() {
 				}
 			}
 			else {
-				gameSprites->Draw(gameTexture, &player, NULL, &playerPos, 0xFFFFFFFF);
+				gameSprites->Draw(enemyTexture, &player, NULL, &playerPos, 0xFFFFFFFF);
 				gameSprites->Draw(bulletTexture, &laser, NULL, &D3DXVECTOR3(playerBox.left + playerPos.x + 7, playerBox.top + playerPos.y + 14, 0), 0xFFFFFFFF);
 			}
+
+			sceneryParticles();
 
 			// draw player bullets
 			drawPlayerBullets();
@@ -181,6 +182,11 @@ void Game::render() {
 			moveEnemies();
 			gameSprites->End();
 			drawTitle();
+			wchar_t buffer[16];
+			_itow_s(hits, buffer, 16);
+			wstring s(TEXT("Hits taken: "));
+			s += wstring(buffer);
+			font->DrawText(NULL, s.c_str(), -1, &topRight, 0, fontColor); 
 			leveltime++;
 			break;
 		}
@@ -263,11 +269,17 @@ void Game::initLevel1() {
 	srand(time(0));
 	offset = 0;
 	exploding = false;
+	spiral = false;
+	chaotic = false;
+	spellcard1 = false;
+	spellcard2 = false;
 	explosionTime = 3;
 	curFrame = 0;
 	curRow = 0;
 	cooldown = 0;
 	curAlpha = 50;
+	currentT = 0;
+	hits = 0;
 	playerBullets = new Bullet[1000];
 	enemyBullets = new Bullet[MAX_BULLETS];
 	enemies = new Enemy[100];
@@ -340,9 +352,9 @@ void Game::drawPlayerBullets() {
 				}
 			}
 			else {
-				spriteManip = scale(translation1, translation2, playerBullets[i].getPos(0), playerBullets[i].getPos(1), scaling, 0.75, 0.9);
+				spriteManip = scale(translation1, translation2, playerBullets[i].getPos(0), playerBullets[i].getPos(1), scaling, 0.1, 0.1);
 				gameSprites->SetTransform(&spriteManip);
-				gameSprites->Draw(bulletTexture, &laser, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
+				gameSprites->Draw(greenLaserTexture, NULL, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
 				playerBullets[i].move(0,-15,0); 
 			}
 			resetMatrices();
@@ -362,11 +374,13 @@ void Game::drawEnemyBullets() {
 			if (enemyBullets[i].getType() == 3) {
 				if (enemyBullets[i].inBounds(playerBox, playerPos.x + 45, playerPos.y + 21) && !exploding) {
 					exploding = true;
+					hits++;
 					enemyBullets[i].setActive(false);
 				}
 			}
 			else if (enemyBullets[i].inBounds(playerBox, playerPos.x + 14, playerPos.y + 21) && !exploding) {
 				exploding = true;
+				hits++;
 				enemyBullets[i].setActive(false);
 			}
 
@@ -374,13 +388,18 @@ void Game::drawEnemyBullets() {
 			D3DXVec3Normalize(&moveRate, &moveRate);
 			angle = atan(moveRate.y/moveRate.x);
 
+			if (enemyBullets[i].getType() <= 3)
 			rotateBullets(angle, i);
 
 			gameSprites->SetTransform(&spriteManip);
-			if (enemyBullets[i].getType() == 3)
-				gameSprites->Draw(greenLaserTexture, NULL, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
-			else gameSprites->Draw(bulletTexture, &enemyBullets[i].getInitialBounds(), NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
-			enemyBullets[i].move(moveRate.x*4, moveRate.y*4, 0); 
+			//if (enemyBullets[i].getType() == 3)
+				//gameSprites->Draw(greenLaserTexture, NULL, NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
+			gameSprites->Draw(bulletTexture, &enemyBullets[i].getInitialBounds(), NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
+			enemyBullets[i].move(moveRate.x*enemyBullets[i].getSpeed(), moveRate.y*enemyBullets[i].getSpeed(), 0); 
+			if (chaotic)
+				chaosSpiral(i);
+			else if (spiral)
+				moveSpiral(i);
 			if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < 0 || enemyBullets[i].getPos(0) < 0 || enemyBullets[i].getPos(0) > SCREEN_WIDTH)
 				enemyBullets[i].setActive(false);
 			resetMatrices();
@@ -391,6 +410,7 @@ void Game::drawEnemyBullets() {
 
 void Game::moveEnemies() {
 	moves.x = 0; moves.z = 0;
+	playerTarget = D3DXVECTOR3(playerPos.x+14, playerPos.y+21, 0);
 	for (int i = 0; i < enemiesList.size(); i++) {
 		int action = enemiesList[i].getAction();
 		if (enemiesList[i].isActive()) {
@@ -408,7 +428,7 @@ void Game::moveEnemies() {
 				case 2: {
 					moves.y = -5;
 					if (enemiesList[i].getCooldown() <= 0) {
-						enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(greenBullet), greenBullet, 0);
+						enemiesList[i].aimFire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(greenBullet), greenBullet, 0, 3);
 						enemiesList[i].setCooldown(30);	
 					}
 					else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
@@ -459,16 +479,17 @@ void Game::drawEnemy(int i) {
 
 void Game::advance(int i) {
 	moves.y = 5;
+	playerTarget = D3DXVECTOR3(playerPos.x+14, playerPos.y+21, 0);
 	enemiesList[i].moveTo(1);
 	if (enemiesList[i].getCooldown() <= 0) {
 		if (enemiesList[i].getType() == 0)
-			enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(greenBullet), greenBullet, 0);
+			enemiesList[i].aimFire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(greenBullet), greenBullet, 0, 3);
 		if (enemiesList[i].getType() == 1)
-			enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(purpleBullet), purpleBullet, 1);
+			enemiesList[i].aimFire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(purpleBullet), purpleBullet, 1, 3);
 		if (enemiesList[i].getType() == 3) {
 			D3DXVECTOR3 shot = playerPos;
 			for (int j = 0; j < 10; j++) {
-				enemiesList[i].aimFire(enemyBullets, shot, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(purpleBullet), purpleBullet, 1);
+				enemiesList[i].aimFire(enemyBullets, shot, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(purpleBullet), purpleBullet, 1, 3);
 				shot = rotateVector(shot, PI/12, 1);
 				enemiesList[i].setCooldown(50);
 			}
@@ -502,7 +523,7 @@ void Game::waiting(int i) {
 				shot.y = -1;
 			if (enemiesList[i].getCooldown() <= 0) {
 				enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
-					D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, i, redBall, redBall, 2);
+					D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, i, redBall, redBall, 2, 3);
 				enemiesList[i].setCooldown(20);
 			}
 			else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
@@ -526,7 +547,7 @@ void Game::waiting(int i) {
 					shot.x = -1*sqrt(3.0f);
 					shot.y = 1;
 					enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)-70, shot.y+enemiesList[i].getPos(1)+60, shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)-70, enemiesList[i].getPos(1)+60, 0), MAX_BULLETS, i, greenLaser, greenLaser, 3);
+						D3DXVECTOR3(enemiesList[i].getPos(0)-70, enemiesList[i].getPos(1)+60, 0), MAX_BULLETS, i, largeGreen, largeGreen, 3, 3);
 				}
 				if (j == 1) {
 					shot.x = 0;
@@ -542,7 +563,7 @@ void Game::waiting(int i) {
 					greenLaser.right = 10;
 					greenLaser.bottom = 110;
 					enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+50, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+50, enemiesList[i].getPos(1), 0), MAX_BULLETS, i, greenLaser, greenLaser, 3);
+						D3DXVECTOR3(enemiesList[i].getPos(0)+50, enemiesList[i].getPos(1), 0), MAX_BULLETS, i, largeGreen, largeGreen, 3, 3);
 				}
 				if (j == 2) {
 					corner1 = D3DXVECTOR3(greenLaser.left,greenLaser.top,0);
@@ -554,7 +575,7 @@ void Game::waiting(int i) {
 					shot.x = sqrt(3.0f);
 					shot.y = 1;
 					enemiesList[i].aimFire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), 
-						enemiesList[i].getPos(), MAX_BULLETS, i, greenLaser, greenLaser, 3);
+						enemiesList[i].getPos(), MAX_BULLETS, i, largeGreen, largeGreen, 3, 3);
 				}
 				//shot = rotateVector(shot, PI/4, 0);	
 				greenLaser.left = 10;
@@ -590,41 +611,89 @@ void Game::bossPattern(int i, int interval) {
 		&& enemiesList[i].getPos(1) + direction.y*2 > 50 && enemiesList[i].getPos(1) + direction.y*2 < 200)
 		enemiesList[i].move(direction.x*2, direction.y*2, direction.z*2);
 	else enemiesList[i].setHeading(D3DXVECTOR3(-1*direction.x,-1*direction.y,0));
-	if (enemiesList[i].getLife() < 3000);
-	if (enemiesList[i].getLife() == 9900) {
-		enemiesList[i].setTargeting(D3DXVECTOR3(0,1,0));
-		tester.init(enemiesList[i].getPos().x,enemiesList[i].getPos().y,0,boss,-1,0,0,0,0,1,1);
+	if (enemiesList[i].getLife() < 2000) {
+		chaotic = true;
 	}
-	else if (enemiesList[i].getLife() < 9900) {
+	if (enemiesList[i].getLife() < 6000) {
+		spiral = true;
+		if (enemiesList[i].getCooldown() <= 0) {
+			fireSpiral(currentT, &enemiesList[i], 1);
+			currentT+=0.5;
+			enemiesList[i].setCooldown(5);
+		}
+		if (currentT > 10) {
+			enemiesList[i].setCooldown(100);
+			currentT = 0;
+		}
+		enemiesList[i].setCooldown(enemiesList[i].getCooldown()-1);
+	}
+	else if (enemiesList[i].getLife() < 9000) {
+		if (enemiesList[i].getCooldown() <= 0) {
+			fireSpiral(currentT, &enemiesList[i], 8);
+			currentT+=0.5;
+			enemiesList[i].setCooldown(5);
+		}
+		if (currentT > 100) {
+			enemiesList[i].setCooldown(150);
+			currentT = 0;
+		}
+		enemiesList[i].setCooldown(enemiesList[i].getCooldown()-1);
+	}
+	if (enemiesList[i].getLife() <= 13000 && !spellcard2) {
+		spellcard2 = true;
+		enemiesList[i].setTargeting(D3DXVECTOR3(0,1,0));
+		Enemy newStream;
+		newStream.init(enemiesList[i].getPos().x,enemiesList[i].getPos().y,0,boss,-1,0,0,0,0,1,1);
+		newStream.setTargeting(D3DXVECTOR3(0,-1,0));
+		subunits.push_back(newStream);
+	}
+	if (enemiesList[i].getLife() <= 17000 && !spellcard1) {
+		spellcard1 = true;
+		enemiesList[i].setTargeting(D3DXVECTOR3(0,1,0));
+		Enemy newStream;
+		newStream.init(enemiesList[i].getPos().x,enemiesList[i].getPos().y,0,boss,-1,0,0,0,0,1,1);
+		subunits.push_back(newStream);
+	}
+	else if (enemiesList[i].getLife() < 17000) {
+		int fireType;
 		//enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(greenBullet), greenBullet, 0);
 		if (enemiesList[i].getCooldown() == 0) {
-			tester.setPos(enemiesList[i].getPos().x,enemiesList[i].getPos().y,0);
 			fireDirection = 0;
-			rotatingFire(&enemiesList[i], fireDirection, PI/12);
-			//enemiesList[i].setTargeting(-enemiesList[i].getTargeting());
-			fireDirection = 1;
-			//double test = atan(enemiesList[i].getTargeting().y/enemiesList[i].getTargeting().x);
-			rotatingFire(&tester, fireDirection, PI/12);
-			enemiesList[i].setCooldown(1);
+			rotatingFire(&enemiesList[i], fireDirection, PI/12, 0);
+			for (int j = 0; j < subunits.size(); j++) {
+				subunits[j].setPos(enemiesList[i].getPos().x,enemiesList[i].getPos().y,0);
+				//enemiesList[i].setTargeting(-enemiesList[i].getTargeting());
+				if (fireDirection == 0) {
+					fireDirection = 1;
+					fireType = 1;
+				}
+				else {
+					fireDirection = 0;
+					fireType = 2;
+				}
+				//double test = atan(enemiesList[i].getTargeting().y/enemiesList[i].getTargeting().x);
+				rotatingFire(&subunits[j], fireDirection, PI/12, fireType);
+				//enemiesList[i].setCooldown(1);
+			}
 		}
 		else enemiesList[i].setCooldown(enemiesList[i].getCooldown()-1);
 	}
-	else if (enemiesList[i].getLife() <= 10000)
+	else if (enemiesList[i].getLife() <= 20000)
 		if (enemiesList[i].getCooldown() == 0) {
-			rotatingFire(&enemiesList[i], fireDirection, PI/12);
+			rotatingFire(&enemiesList[i], fireDirection, PI/12, 0);
 			enemiesList[i].setCooldown(1);
 		}
 		else enemiesList[i].setCooldown(enemiesList[i].getCooldown()-1);
 		//enemiesList[i].aimFire(enemyBullets, playerPos, enemiesList[i].getPos(), MAX_BULLETS, i, calcHitbox(greenBullet), greenBullet, 0);
 }
 
-void Game::rotatingFire(Enemy* i, int direction, double angle) {
+void Game::rotatingFire(Enemy* i, int direction, double angle, int type) {
 	if (leveltime%50 == 0) {
 		if (rand()%2 == 0) {
 			if (fireDirection == 0) 
 				fireDirection = 1;
 			else fireDirection = 0;
-		}
+		}   
 	}
 	D3DXVECTOR3 newTarget = rotateVector(i->getTargeting(), angle, direction);
 	i->setTargeting(newTarget);
@@ -632,26 +701,76 @@ void Game::rotatingFire(Enemy* i, int direction, double angle) {
 		i->setTargeting(D3DXVECTOR3(0,1,0));
 	newTarget.x *= 3;
 	newTarget.y *= 3;
-	if (fireDirection == 0)
+	if (type == 0)
 		i->aimFire(enemyBullets, D3DXVECTOR3(newTarget.x+i->getPos(0)+10, newTarget.y+i->getPos(1)+10,0), 
-			D3DXVECTOR3(i->getPos(0)+10,i->getPos(1)+10,0), MAX_BULLETS, 0, calcHitbox(redBall), redBall, 1);
-	else if (fireDirection == 1)
+			D3DXVECTOR3(i->getPos(0)+10,i->getPos(1)+10,0), MAX_BULLETS, 0, calcHitbox(blueBall), blueBall, 5, 3);
+	else if (type == 1)
 		i->aimFire(enemyBullets, D3DXVECTOR3(newTarget.x+i->getPos(0)+10, newTarget.y+i->getPos(1)+10,0), 
-			D3DXVECTOR3(i->getPos(0)+10,i->getPos(1)+10,0), MAX_BULLETS, 0, calcHitbox(greenBullet), purpleBullet, 1);
+			D3DXVECTOR3(i->getPos(0)+10,i->getPos(1)+10,0), MAX_BULLETS, 0, calcHitbox(yellowStar), yellowStar, 6, 4);
+	else 
+		i->aimFire(enemyBullets, D3DXVECTOR3(newTarget.x+i->getPos(0)+10, newTarget.y+i->getPos(1)+10,0), 
+			D3DXVECTOR3(i->getPos(0)+10,i->getPos(1)+10,0), MAX_BULLETS, 0, calcHitbox(largeGreen), largeGreen, 7, 2.5);
 }
 
-/*void Game::fireSpiral(double t, int size) {
-	int x = t*cos(t);
-	int y = t*sin(t);
-	for (int i=0; i < size; i++) {
-		if (!enemyBullets[i].isActive()) {
-			enemyBullets[i].init(x, y, 0, bounds, init_, type_, 1);
-			D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x - this->getPos(0), targetPos.y - this->getPos(1), 0);
-			enemyBullets[i].setTarget(targetPos);
-			break;
-		}
+void Game::fireSpiral(double t, Enemy* enemy_, int size) {
+	playerTarget = D3DXVECTOR3(playerPos.x+14, playerPos.y+21, 0);
+	D3DXVECTOR3 shot;
+	double x = t*cos(t);
+	double y = t*sin(t);
+	for (int j = 0; j < size; j++) {
+		if (j == 0 || j == 4)
+			shot.x = 0;
+		if (j == 1 || j == 2 || j == 3)
+			shot.x = 1;
+		if (j == 5 || j == 6 || j == 7)
+			shot.x = -1;
+		if (j == 0 || j == 1 || j == 7)
+			shot.y = 1;
+		if (j == 2 || j == 6)
+			shot.y = 0;
+		if (j == 3 || j == 4 || j == 5)
+			shot.y = -1;
+		enemy_->aimFire(enemyBullets, D3DXVECTOR3(shot.x+x+enemy_->getPos(0), shot.y+y+enemy_->getPos(1), 0), 
+			D3DXVECTOR3(x+enemy_->getPos(0), y+enemy_->getPos(1), 0), MAX_BULLETS, 0, calcHitbox(blueBall), blueBall, 4, 3);
 	}
-}*/
+			//enemyBullets[i].init(x+enemy_->getPos(0), y+enemy_->getPos(1), 0, calcHitbox(greenBullet), greenBullet, 0, 1);
+			//D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x - this->getPos(0), targetPos.y - this->getPos(1), 0);
+			//enemyBullets[i].setTarget(playerPos);
+}
+
+void Game::moveSpiral(int i) {
+	double x, y, s;
+	if (enemyBullets[i].isActive() && enemyBullets[i].getType() == 4) {
+		s = enemyBullets[i].getS();
+		if (i%2 == 0) {
+			x = s*cos(s);
+			y = s*sin(s);
+		}
+		else {
+			x = -s*cos(s);
+			y = -s*sin(s);
+		}
+		enemyBullets[i].setPos(0.1*x+enemyBullets[i].getPos(0), 0.1*y+enemyBullets[i].getPos(1), 0);
+		enemyBullets[i].setS(enemyBullets[i].getS()+0.05);
+	}
+}
+
+void Game::chaosSpiral(int i) {
+	double x, y, s;
+	if (enemyBullets[i].isActive() && enemyBullets[i].getType() == 4) {
+		s = enemyBullets[i].getS();
+		if (rand()%2 == 0) {
+			x = s*cos(s);
+			y = s*sin(s);
+		}
+		else {
+			x = -s*cos(s);
+			y = -s*sin(s);
+		}
+		enemyBullets[i].setPos(x+enemyBullets[i].getPos(0), y+enemyBullets[i].getPos(1), 0);
+		enemyBullets[i].setS(enemyBullets[i].getS()+0.1);
+	}
+}
 
 void Game::makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed) {
 	Enemy next;
@@ -693,11 +812,11 @@ D3DXMATRIX Game::scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, 
 
 void Game::rotateBullets(double angle, int i) {
 	D3DXMatrixTranslation(&translation1,-1*enemyBullets[i].getPos(0),-1*enemyBullets[i].getPos(1),0);
-	if (enemyBullets[i].getType() == 3) {
+	/*if (enemyBullets[i].getType() == 3) {
 		D3DXMatrixRotationZ(&rotation, angle);
 		D3DXMatrixScaling(&scaling, 0.3, 0.3, 1);
-	}
-	else if (enemyBullets[i].getStartPos().x < enemyBullets[i].getTarget().x)
+	}*/
+	if (enemyBullets[i].getStartPos().x < enemyBullets[i].getTarget().x)
 		D3DXMatrixRotationZ(&rotation, angle + PI/4);
 	else D3DXMatrixRotationZ(&rotation, angle - PI/4);
 	D3DXMatrixTranslation(&translation2,enemyBullets[i].getPos(0),enemyBullets[i].getPos(1),0);
@@ -744,17 +863,22 @@ void Game::drawTitle() {
 		font->DrawText(NULL, TEXT("- Stage 1 -"), -1, &levelText, 0, fontColor);
 		//font->DrawText(NULL, TEXT("Introduction"), -1, &descText, 0, fontColor);
 	}
+	else fontColor = fontColor = D3DCOLOR_ARGB(255,200,200,255); 
 }
 
 void Game::setRects() {
-	player.left=0;
+	/*player.left=0;
 	player.right=28;
 	player.top=0;
-	player.bottom=43;
+	player.bottom=43;*/
+	player.left = 400;
+	player.top = 1988;
+	player.right = 427;
+	player.bottom = 2056;
 	playerBox.left = 0;
-	playerBox.right=player.right/20;
+	playerBox.right=14;
 	playerBox.top = 0;
-	playerBox.bottom=player.bottom/20;
+	playerBox.bottom=22;
 	kaguya.left=454;
 	kaguya.top=1360;
 	kaguya.right=500;
@@ -811,6 +935,25 @@ void Game::setRects() {
 	bigGreenParticle.top = 1988;
 	bigGreenParticle.right = 377;
 	bigGreenParticle.bottom = 2056;
+	topRight.left = 550;
+	topRight.right = 800;
+	topRight.top = 0;
+	topRight.bottom = 40;
+	largeGreen.left = 415;
+	largeGreen.top = 45;
+	largeGreen.right = 445;
+	largeGreen.bottom = 80;
+	blueBall.left = 130;
+	blueBall.top = 40;
+	blueBall.right = 145;
+	blueBall.bottom = 65;
+	yellowStar.left = 210;
+	yellowStar.top = 215;
+	yellowStar.right = 225;
+	yellowStar.bottom = 232;
+	/*383 192 445 253
+	207 162 223 174
+	128 32 142 46*/
 }
 
 void Game::level1Script() {
@@ -1040,7 +1183,7 @@ void Game::level1Script() {
 	}*/
 
 	if (leveltime == 200) {
-		makeEnemy(0, -10, 0, boss, -1, 350, 200, 0, 0, 10000, 2);
+		makeEnemy(0, -10, 0, boss, -1, 350, 200, 0, 0, 20000, 2);
 		makeEnemy(100, -10, 0, fairy, 2, 300, 200, 100, -10, 500, 2);
 	}
 
