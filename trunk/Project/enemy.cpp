@@ -106,10 +106,10 @@ void Enemy::setEnd(D3DXVECTOR3 _end) {
 	end = _end;
 }
 
-void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, RECT init_, int type_) {
+void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, RECT init_, int type_, float speed_) {
 	for (int i=0; i < size; i++) {
 		if (!enemyBullets[i].isActive()) {
-			enemyBullets[i].init(startPos.x, startPos.y, startPos.z, bounds, init_, type_, 1);
+			enemyBullets[i].init(startPos.x, startPos.y, startPos.z, bounds, init_, type_, speed_);
 			D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x - this->getPos(0), targetPos.y - this->getPos(1), 0);
 			enemyBullets[i].setTarget(targetPos);
 			break;

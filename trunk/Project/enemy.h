@@ -33,7 +33,7 @@ public:
 	void setMid(D3DXVECTOR3 _mid);
 	D3DXVECTOR3 getEnd();
 	void setEnd(D3DXVECTOR3 _end);
-	void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, RECT init_, int type_);
+	void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, RECT init_, int type_, float speed_);
 };
 
 #endif
