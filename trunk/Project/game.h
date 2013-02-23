@@ -33,7 +33,7 @@ private:
 	LPD3DXSPRITE menuBackground;
 	LPDIRECT3DTEXTURE9 menuBackgroundTexture;
 	LPD3DXFONT font;
-	D3DCOLOR fontColor;
+	D3DCOLOR fontColor, fontColor2;
 	D3DXVECTOR3 zero;
 	RECT start;
 	RECT quit;
@@ -55,9 +55,9 @@ private:
 	D3DXVECTOR3 enemyPos;
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 	float s;
-	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, spreadShot, boss,
+	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, verticalShot, spreadShot, boss,
 		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;
-	bool firing, exploding, focus, chaotic, spiral, spellcard1, spellcard2;
+	bool firing, exploding, focus, invincible, chaotic, spiral, spellcard1, spellcard2;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
@@ -89,7 +89,7 @@ public:
 	void drawEnemyBullets();
 	void rotatingFire(Enemy* i, int direction, double angle, int type);
 	void fireSpiral(double t, Enemy* enemy_, int size);
-	void moveSpiral(int i);
+	void moveSpiral(int i, float s_);
 	void chaosSpiral(int i);
 	void moveEnemies();
 	void drawTitle();
