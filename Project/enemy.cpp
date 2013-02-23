@@ -30,13 +30,13 @@ void Enemy::moveTo(int dest) {
 	D3DXVECTOR3 newPos;
 	if (dest == 1) {
 		D3DXVec3CatmullRom(&newPos, &this->getStartPos(), &this->getStartPos(), &mid, &mid, this->getS());
-		setS(this->getS() + 0.005*this->getSpeed());
+		setS(this->getS() + 0.001*this->getSpeed());
 		setPos(newPos.x, newPos.y, newPos.z);
 		setWaitTime(0);
 	}
 	if (dest == 0) {
 		D3DXVec3CatmullRom(&newPos, &end, &end, &mid, &mid, this->getS());
-		setS(this->getS() - 0.005*this->getSpeed());
+		setS(this->getS() - 0.001*this->getSpeed());
 		setPos(newPos.x, newPos.y, newPos.z);
 		setWaitTime(0);
 	}
