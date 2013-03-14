@@ -22,8 +22,8 @@ public:
 	void setActive(bool setting);
 	int getPos(int coord);
 	D3DXVECTOR3 getPos();
-	void setPos(int x, int y, int z);
-	void move(int x, int y, int z);
+	void setPos(double x, double y, double z);
+	void move(double x, double y, double z);
 	void setBounds(RECT bounds_);
 	void setBounds(RECT bounds_, int x, int y); 
 	RECT getBounds();

@@ -39,6 +39,9 @@ private:
 	RECT quit;
 
 	// levels
+	D3DXVECTOR3 WTF______;
+	double ___TEST;
+	D3DXVECTOR3 testTarget;
 	LPD3DXSPRITE gameSprites;
 	LPDIRECT3DTEXTURE9 gameTexture;
 	LPDIRECT3DTEXTURE9 laserTexture;
@@ -57,7 +60,7 @@ private:
 	float s;
 	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, verticalShot, spreadShot, boss,
 		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;
-	bool firing, exploding, focus, invincible, chaotic, spiral, spellcard1, spellcard2;
+	bool firing, exploding, focus, invincible, chaotic, spiral, spellcard1, spellcard2, clear;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
 	Enemy* enemies;
@@ -89,8 +92,8 @@ public:
 	void drawEnemyBullets();
 	void rotatingFire(Enemy* i, int direction, double angle, int type);
 	void fireSpiral(double t, Enemy* enemy_, int size);
-	void moveSpiral(int i, float s_);
-	void chaosSpiral(int i);
+	void moveSpiral(int i, float s_, float initS);
+	void chaosSpiral(int i, float s_);
 	void moveEnemies();
 	void drawTitle();
 	void drawEnemy(int i);
