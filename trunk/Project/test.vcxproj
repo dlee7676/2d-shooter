@@ -80,6 +80,7 @@
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gameObject.cpp" />
+    <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="particleSystem.cpp" />
@@ -89,6 +90,7 @@
     <ClInclude Include="enemy.h" />
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="level.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="particleSystem.h" />
   </ItemGroup>

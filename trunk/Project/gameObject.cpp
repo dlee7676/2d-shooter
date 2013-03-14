@@ -77,13 +77,13 @@ int GameObject::getPos(int coord) {
 	}
 }
 
-void GameObject::setPos(int x, int y, int z) {
+void GameObject::setPos(double x, double y, double z) {
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
 }
 
-void GameObject::move(int x, int y, int z) {
+void GameObject::move(double x, double y, double z) {
 	pos.x += x;
 	pos.y += y;
 	pos.z += z;
@@ -176,4 +176,8 @@ void GameObject::setType(int type_) {
 
 float GameObject::getSpeed() {
 	return speed;
+}
+
+void GameObject::setSpeed(float speed_) {
+	speed = speed_;
 }

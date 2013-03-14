@@ -110,9 +110,28 @@ void Enemy::aimFire(Bullet* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 sta
 	for (int i=0; i < size; i++) {
 		if (!enemyBullets[i].isActive()) {
 			enemyBullets[i].init(startPos.x, startPos.y, startPos.z, bounds, init_, type_, speed_);
-			D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x - this->getPos(0), targetPos.y - this->getPos(1), 0);
+			D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x+10 - this->getPos(0), targetPos.y+5 - this->getPos(1), 0);
 			enemyBullets[i].setTarget(targetPos);
+			//enemyBullets[i].setSpeed(2);
 			break;
 		}
 	}
+}
+
+void Enemy::rotateFire(Bullet* enemyBullets, int direction, double angle, int type) {
+	if (direction == 1) {
+		targeting.x = targeting.x*cos(angle)-targeting.y*sin(angle);
+		targeting.y = targeting.x*sin(angle)+targeting.y*cos(angle);
+	}
+	else {
+		targeting.x = targeting.x*cos(angle)+targeting.y*sin(angle);
+		targeting.y = targeting.y*cos(angle)-targeting.x*sin(angle);
+	}
+	targeting.z = 0;
+
+	D3DXVECTOR3 newTarget = targeting;
+	if (abs(targeting.x) < 0.001)
+		setTargeting(D3DXVECTOR3(rand()%10-5,1,0));
+	newTarget.x *= 3;
+	newTarget.y *= 3;
 }

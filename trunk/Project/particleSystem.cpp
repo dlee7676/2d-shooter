@@ -13,13 +13,13 @@ void ParticleSystem::emit(D3DXVECTOR3 pos, int type_) {
 	bounds.bottom = 0;
 	D3DXVECTOR3 random = randomHeading();
 	int life = rand()%200+150;
-	next.init(pos, type_, bounds, rand()%2+1.5, random, life);
+	next.init(pos, type_, bounds, rand()%2+1, random, life);
 	particleList.push_back(next);
 }
 
 D3DXVECTOR3 ParticleSystem::randomHeading() {
 	D3DXVECTOR3 direction;
-	direction = D3DXVECTOR3(rand()%2-1, rand()%10+2, 0);
+	direction = D3DXVECTOR3(rand()%2-1, rand()%4+2, 0);
 	D3DXVec3Normalize(&direction, &direction);
 	return direction;
 }
