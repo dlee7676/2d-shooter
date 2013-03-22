@@ -10,19 +10,18 @@ private:
 	D3DXVECTOR3 pos, startPos;
 	RECT bounds, initialBounds;
 	bool active, exploding;
-	float s;
+	float s, t, speed;
 	int animTime, type;
-	float speed;
 
 public:
 	GameObject::GameObject();
 	void init(int x, int y, int z, RECT bounds_, int type_, float speed_);
-	void init(int x, int y, int z, RECT bounds_, RECT init_, int type_, float speed_);
 	bool isActive();
 	void setActive(bool setting);
 	int getPos(int coord);
 	D3DXVECTOR3 getPos();
 	void setPos(double x, double y, double z);
+	void setPos(int coord, double value);
 	void move(double x, double y, double z);
 	void setBounds(RECT bounds_);
 	void setBounds(RECT bounds_, int x, int y); 
@@ -35,6 +34,8 @@ public:
 	void setStartPos(D3DXVECTOR3 _startPos);
 	float getS();
 	void setS(float s_);
+	float getT();
+	void setT(float t_);
 	bool isExploding();
 	void setExploding(bool exploding_);
 	int getAnimTime();

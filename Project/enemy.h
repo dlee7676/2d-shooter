@@ -7,7 +7,7 @@
 class Enemy : public GameObject {
 	
 private:
-	int action, waitTime, cooldown;
+	int action, waitTime, cooldown, rotateDirection;
 	float life;
 	D3DXVECTOR3 mid, end, heading, targeting;
 
@@ -17,6 +17,8 @@ public:
 	void wait();
 	void waitAt(int time, int pos);
 	void moveTo(int dest);
+	int getRotateDirection();
+	void setRotateDirection(int direction);
 	int getWaitTime();
 	void setWaitTime(int time);
 	int getCooldown();
@@ -33,8 +35,12 @@ public:
 	void setMid(D3DXVECTOR3 _mid);
 	D3DXVECTOR3 getEnd();
 	void setEnd(D3DXVECTOR3 _end);
-	void aimFire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, int owner, RECT bounds, RECT init_, int type_, float speed_);
-	void rotateFire(Bullet* enemyBullets, int direction, double angle, int type);
+	void fire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, RECT bounds, int type_, float speed_);
+	D3DXVECTOR3 rotateAim(int direction, double angle);
+	D3DXVECTOR3 fireSpiral(double t);
+	D3DXVECTOR3 aim8Ways(int num);
+	void bossPattern(int interval, int time);
+	//void moveEnemies();
 };
 
 #endif
