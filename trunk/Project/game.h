@@ -7,9 +7,11 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <vector>
+#include <map>
 #include <ctime>
 #include "bullet.h"
 #include "enemy.h"
+#include "level.h"
 #include "particleSystem.h"
 
 using namespace std;
@@ -28,48 +30,33 @@ private:
 	LPDIRECT3D9 d3d;
 	LPDIRECT3DDEVICE9 pDev;
 	HWND hwnd;
+	LPD3DXSPRITE gameSprites;
 
 	// menu
-	LPD3DXSPRITE menuBackground;
 	LPDIRECT3DTEXTURE9 menuBackgroundTexture;
 	LPD3DXFONT font;
 	D3DCOLOR fontColor, fontColor2;
-	D3DXVECTOR3 zero;
-	RECT start;
-	RECT quit;
+	RECT start, quit;
 
 	// levels
-	D3DXVECTOR3 WTF______;
-	double ___TEST;
-	D3DXVECTOR3 testTarget;
-	LPD3DXSPRITE gameSprites;
-	LPDIRECT3DTEXTURE9 gameTexture;
-	LPDIRECT3DTEXTURE9 laserTexture;
-	LPDIRECT3DTEXTURE9 explosionTexture;
-	LPDIRECT3DTEXTURE9 levelBackgroundTexture;
-	LPDIRECT3DTEXTURE9 bulletTexture, greenLaserTexture, enemyTexture;
-	D3DXVECTOR3 playerPos;
-	D3DXVECTOR3 moves;
-	D3DXVECTOR3 bgPos;
-	D3DXVECTOR3 playerTarget;
-	D3DXMATRIX spriteManip;
-	D3DXMATRIX rotation, scaling;
-	D3DXMATRIX translation1, translation2;
-	D3DXVECTOR3 enemyPos;
-	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
-	float s;
+	LPDIRECT3DTEXTURE9 gameTexture, laserTexture, explosionTexture, levelBackgroundTexture, bulletTexture, greenLaserTexture, enemyTexture;
+
+	D3DXVECTOR3 bgPos, playerTarget;
+	D3DXMATRIX spriteManip, rotation, scaling, translation1, translation2;
+
 	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, verticalShot, spreadShot, boss,
 		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;
-	bool firing, exploding, focus, invincible, chaotic, spiral, spellcard1, spellcard2, clear;
+	map<string,RECT> drawBoundaries;
+	bool focus, invincible, spellcard1, spellcard2, clear;
 	Bullet* playerBullets;
 	Bullet* enemyBullets;
-	Enemy* enemies;
-	vector<Enemy> subunits;
-	vector<Enemy> enemiesList;
+
+	vector<Enemy> enemiesList, subunits;
 	ParticleSystem particleHandler;
 	GameObject playerObject;
-	int leveltime, offset, curFrame, curRow, explosionTime, moveRate, fireDirection, hits;
-	int cooldown;
+	Level curLevel;
+	
+	int leveltime, offset, curFrame, curRow, moveRate, fireDirection, hits;
 	int curAlpha;
 	double currentT;
 
@@ -88,6 +75,7 @@ public:
 	void sceneryParticles();
 	void level1Script();
 	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
+	void drawPlayer();
 	void drawPlayerBullets();
 	void drawEnemyBullets();
 	void rotatingFire(Enemy* i, int direction, double angle, int type);
@@ -96,14 +84,18 @@ public:
 	void chaosSpiral(int i, float s_);
 	void moveEnemies();
 	void drawTitle();
-	void drawEnemy(int i);
+	void drawEnemy();
+	void checkEnemyHits(); 
 	void advance(int i);
 	void waiting(int i);
 	void bossPattern(int i, int interval);
+	void boss1Actions(int i);
 	void resetMatrices();
 	void rotateBullets(double angle, int i);
+	void refreshEnemies();
 	RECT calcHitbox(RECT bounds);
-	D3DXMATRIX Game::scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, int y, D3DXMATRIX scaling, float xFactor, float yFactor);
+	D3DXMATRIX scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, int y, D3DXMATRIX scaling, float xFactor, float yFactor);
+	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "gameObject.h"
 
-GameObject::GameObject() :pos(0,0,0), active(false), exploding(false) {
+GameObject::GameObject() :pos(0,0,0), active(false) {
 
 }
 
@@ -12,33 +12,11 @@ void GameObject::init(int x, int y, int z, RECT bounds_, int type_, float speed_
 	startPos.y = y;
 	startPos.z = z;
 	s = 0.0f;
+	t = 0.0f;
 	initialBounds.left = bounds_.left;
 	initialBounds.top = bounds_.top;
 	initialBounds.right = bounds_.right;
 	initialBounds.bottom = bounds_.bottom;
-	bounds.left = 0;
-	bounds.top = 0;
-	bounds.right = bounds_.right - bounds_.left;
-	bounds.bottom = bounds_.bottom - bounds_.top;
-	active = true;
-	exploding = false;
-	animTime = 10;
-	type = type_;
-	speed = speed_;
-}
-
-void GameObject::init(int x, int y, int z, RECT bounds_, RECT init_, int type_, float speed_) {
-	pos.x = x;
-	pos.y = y;
-	pos.z = z;
-	startPos.x = x;
-	startPos.y = y;
-	startPos.z = z;
-	s = 0.0f;
-	initialBounds.left = init_.left;
-	initialBounds.top = init_.top;
-	initialBounds.right = init_.right;
-	initialBounds.bottom = init_.bottom;
 	bounds.left = 0;
 	bounds.top = 0;
 	bounds.right = bounds_.right - bounds_.left;
@@ -83,6 +61,23 @@ void GameObject::setPos(double x, double y, double z) {
 	pos.z = z;
 }
 
+void GameObject::setPos(int coord, double value) {
+	switch(coord) {
+		case 0:
+			pos.x = value;
+			break;
+		case 1:
+			pos.y = value;
+			break;
+		case 2:
+			pos.z = value;	
+			break;
+		default:
+			pos.x = value;
+			break;
+	}
+}
+
 void GameObject::move(double x, double y, double z) {
 	pos.x += x;
 	pos.y += y;
@@ -103,6 +98,14 @@ float GameObject::getS() {
 
 void GameObject::setS(float s_) {
 	s = s_;
+}
+
+float GameObject::getT() {
+	return t;
+}
+
+void GameObject::setT(float t_) {
+	t = t_;
 }
 
 void GameObject::setBounds(RECT bounds_) {

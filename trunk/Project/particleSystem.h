@@ -16,8 +16,7 @@ private:
 
 public:
 	ParticleSystem();
-	void emit(D3DXVECTOR3 pos, int type_);
-	D3DXVECTOR3 randomHeading();
+	void emit(D3DXVECTOR3 pos, int type_, float speed_, D3DXVECTOR3 direction);
 	void update();
 	vector<Particle> getParticles();
 };
