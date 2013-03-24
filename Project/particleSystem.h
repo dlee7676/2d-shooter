@@ -4,7 +4,6 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <vector>
-#include <ctime>
 #include "particle.h"
 
 using namespace std;
@@ -16,7 +15,7 @@ private:
 
 public:
 	ParticleSystem();
-	void emit(D3DXVECTOR3 pos, int type_, float speed_, D3DXVECTOR3 direction);
+	void emit(D3DXVECTOR3 pos, int type_, int life_, float speed_, D3DXVECTOR3 direction);
 	void update();
 	vector<Particle> getParticles();
 };
