@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <ctime>
+#include <string>
 #include "bullet.h"
 #include "enemy.h"
 #include "level.h"
@@ -43,9 +44,9 @@ private:
 
 	D3DXVECTOR3 bgPos, playerTarget;
 	D3DXMATRIX spriteManip, rotation, scaling, translation1, translation2;
-
-	RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, verticalShot, spreadShot, boss,
-		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;
+	RECT bgTop, bgBottom, levelText, subText1, drawExplosion;
+	/*RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, verticalShot, spreadShot, boss,
+		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;*/
 	map<string,RECT> drawBoundaries;
 	bool focus, invincible, spellcard1, spellcard2, clear;
 	Bullet* playerBullets;

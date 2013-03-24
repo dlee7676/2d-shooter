@@ -34,10 +34,10 @@ void Game::gameloop() {
 void Game::handleInput() {
 	if (GetAsyncKeyState(VK_ESCAPE)) {
 		screen = 0;
-		delete playerBullets;
-		delete enemyBullets;
-		enemyTexture->Release();
+		//curLevel.init(&enemiesList);
+		//delete levelBackgroundTexture;
 		enemiesList.clear();
+		//subunits.clear();
 		initMenuScreen();
 	}
 	switch (screen) {
@@ -90,7 +90,7 @@ void Game::handleInput() {
 						//if (cooldown <= 0) {
 							if (!playerBullets[i].isActive()) {
 								playerBullets[i].setActive(true);
- 								playerBullets[i].init(playerObject.getPos(0)-20+num*10, playerObject.getPos(1), 0, laser, num, 1);
+ 								playerBullets[i].init(playerObject.getPos(0)-20+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], num, 1);
 								break;
 							}
 							//cooldown = 1;
@@ -103,7 +103,7 @@ void Game::handleInput() {
 						//if (cooldown <= 0) {
 							if (!playerBullets[i].isActive()) {
 								playerBullets[i].setActive(true);
- 								playerBullets[i].init(playerObject.getPos(0)-10+num*10, playerObject.getPos(1), 0, laser, 3, 1);
+ 								playerBullets[i].init(playerObject.getPos(0)-10+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], 3, 1);
 								break;
 							}
 							//cooldown = 1;
@@ -172,7 +172,7 @@ void Game::render() {
 			curLevel.incrementTime();
 			if (curLevel.isClear()) {
 				font->DrawText(NULL, TEXT("Stage Clear!"), -1, &levelText, 0, fontColor2); 
-				font->DrawText(NULL, s.c_str(), -1, &descText, 0, fontColor2);
+				font->DrawText(NULL, s.c_str(), -1, &subText1, 0, fontColor2);
 			}
 			break;
 		}
@@ -253,8 +253,8 @@ void Game::drawTitle() {
 	if (curLevel.getTime() >= 0 && curLevel.getTime() < 240) {
 		levelText.left = SCREEN_WIDTH/2-100;
 		levelText.right = SCREEN_WIDTH/2+200;
-		descText.left = SCREEN_WIDTH/2;
-		descText.right = SCREEN_WIDTH/2+200;
+		subText1.left = SCREEN_WIDTH/2-100;
+		subText1.right = SCREEN_WIDTH/2+200;
 		for (int i = 0; i < 60; i++) {
 			if (curLevel.getTime() == i)  {
 				curAlpha += 3;
@@ -332,7 +332,6 @@ void Game::initLevel1() {
 		DEFAULT_PITCH | FF_DONTCARE, TEXT("Franklin Gothic Demi"), &font); 
 	//curLevel.getTime() = 0;
 	fireDirection = 0;
-	setRects();
 	srand(time(0));
 	offset = 0;
 	fontColor2 = D3DCOLOR_ARGB(255,240,240,240);
@@ -341,10 +340,15 @@ void Game::initLevel1() {
 	curAlpha = 50;
 	currentT = 0;
 	hits = 0;
+	levelText.top = 250;
+	levelText.bottom = 300;
+	subText1.top = 310;
+	subText1.bottom = 360;
 	playerBullets = new Bullet[MAX_BULLETS];
 	enemyBullets = new Bullet[MAX_BULLETS];
-	playerObject.init(SCREEN_WIDTH/2, SCREEN_HEIGHT*8/10, 0, playerBox, 0, 6);
+	playerObject.init(SCREEN_WIDTH/2, SCREEN_HEIGHT*8/10, 0, drawBoundaries["playerBox"], 0, 6);
 	curLevel.init(&enemiesList);
+	drawBoundaries = curLevel.getBoundaries();
 }
 
 void Game::scrollBackground() {
@@ -369,7 +373,8 @@ void Game::sceneryParticles() {
 	if (curLevel.getTime()%50 == 0) {
 		for (int i = 0; i < 10; i++) {
 			if (rand()%2 == 0)
-				particleHandler.emit(D3DXVECTOR3(rand()%800, rand()%600, 0), rand()%1, rand()%2+1, D3DXVECTOR3((rand()%2-1)*0.3, (rand()%2+2)*0.3, 0));
+				particleHandler.emit(D3DXVECTOR3(rand()%800, rand()%600, 0), rand()%1, rand()%200+150, (rand()%2+1)*0.75, 
+					D3DXVECTOR3((rand()%2-1)*0.3, (rand()%2+2)*0.3, 0));
 		}
 	}
 	vector<Particle> display = particleHandler.getParticles();
@@ -387,8 +392,8 @@ void Game::sceneryParticles() {
 					currentColor = D3DCOLOR_ARGB(255, 255, 255, 255);
 			}
 			if (display[i].getType() == 0)
-				gameSprites->Draw(enemyTexture, &smallGreenParticle, NULL, &display[i].getPos(), currentColor);
-			else gameSprites->Draw(enemyTexture, &bigGreenParticle, NULL, &display[i].getPos(), currentColor);
+				gameSprites->Draw(enemyTexture, &drawBoundaries["smallGreenParticle"], NULL, &display[i].getPos(), currentColor);
+			else gameSprites->Draw(enemyTexture, &drawBoundaries["bigGreenParticle"], NULL, &display[i].getPos(), currentColor);
 		}
 	}
 	particleHandler.update();
@@ -396,11 +401,11 @@ void Game::sceneryParticles() {
 
 void Game::drawPlayer() {
 	if (playerObject.isExploding()) {
-		explosionAnim.left = curFrame*100;
-		explosionAnim.top = curRow*100+5*curRow;
-		explosionAnim.right = explosionAnim.left+100;
-		explosionAnim.bottom = explosionAnim.top+100-5*curRow;
-		gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &playerObject.getPos(), 0xFFFFFFFF);
+		drawExplosion.left = curFrame*100;
+		drawExplosion.top = curRow*100+5*curRow;
+		drawExplosion.right = drawExplosion.left+100;
+		drawExplosion.bottom = drawExplosion.top+100-5*curRow;
+		gameSprites->Draw(explosionTexture, &drawExplosion, NULL, &playerObject.getPos(), 0xFFFFFFFF);
 		playerObject.setAnimTime(playerObject.getAnimTime()-1);
 		if (playerObject.getAnimTime() <= 0) {
 			curFrame++;
@@ -424,7 +429,7 @@ void Game::drawPlayer() {
 	}
 	else {
 		if ((invincible && curLevel.getTime()%2 == 0) || !invincible) 
-			gameSprites->Draw(enemyTexture, &player, NULL, &playerObject.getPos(), 0xFFFFFFFF);
+			gameSprites->Draw(enemyTexture, &drawBoundaries["player"], NULL, &playerObject.getPos(), 0xFFFFFFFF);
 	}
 	if (playerObject.getAnimTime() > 5) {
 		playerObject.setAnimTime(playerObject.getAnimTime()-1);
@@ -437,13 +442,13 @@ void Game::drawPlayerBullets() {
 	for (int i = 0; i < MAX_BULLETS; i++) {
 		if (playerBullets[i].isActive()) {
 			if (playerBullets[i].isExploding()) {
-				explosionAnim.left = 0;
-				explosionAnim.top = 0;
-				explosionAnim.right = 80;
-				explosionAnim.bottom = 80;
+				drawExplosion.left = 0;
+				drawExplosion.top = 0;
+				drawExplosion.right = 80;
+				drawExplosion.bottom = 80;
 				spriteManip = scale(translation1, translation2, playerBullets[i].getPos(0), playerBullets[i].getPos(1), scaling, 0.5, 0.5);
 				gameSprites->SetTransform(&spriteManip);
-				gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
+				gameSprites->Draw(explosionTexture, &drawExplosion, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
 				playerBullets[i].setAnimTime(playerBullets[i].getAnimTime() - 1);
 				if (playerBullets[i].getAnimTime() <= 0) {
 					playerBullets[i].setActive(false);
@@ -454,7 +459,7 @@ void Game::drawPlayerBullets() {
 			else {
 				spriteManip = scale(translation1, translation2, playerBullets[i].getPos(0), playerBullets[i].getPos(1), scaling, 0.7, 0.9);
 				gameSprites->SetTransform(&spriteManip);
-				gameSprites->Draw(bulletTexture, &laser, NULL, &playerBullets[i].getPos(), 0xB1FFFFFF);
+				gameSprites->Draw(bulletTexture, &drawBoundaries["laser"], NULL, &playerBullets[i].getPos(), 0xB1FFFFFF);
 				if (playerObject.getSpeed() == 3) {
 					if (playerBullets[i].getType() < 2)
 						playerBullets[i].move(-1,-15,0); 
@@ -486,7 +491,7 @@ void Game::drawEnemyBullets() {
 	int startX, startY, bulletType;
 	for (int i = 0; i < MAX_BULLETS; i++) {
 		if (enemyBullets[i].isActive()) {
-			if (enemyBullets[i].inBounds(playerBox, playerObject.getPos(0) + 10, playerObject.getPos(1) + 5) && (!playerObject.isExploding()) && !invincible) {
+			if (enemyBullets[i].inBounds(drawBoundaries["playerBox"], playerObject.getPos(0) + 10, playerObject.getPos(1) + 5) && (!playerObject.isExploding()) && !invincible) {
 				playerObject.setExploding(true);
 				hits++;
 				enemyBullets[i].setActive(false);
@@ -518,11 +523,11 @@ void Game::drawEnemy() {
 	for (int i = 0; i < enemiesList.size(); i++) {
 		if (enemiesList[i].isActive()) {
 			if (enemiesList[i].isExploding()) {
-				explosionAnim.left = 0;
-				explosionAnim.top = 0;
-				explosionAnim.right = 80;
-				explosionAnim.bottom = 80;
-				gameSprites->Draw(explosionTexture, &explosionAnim, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
+				drawExplosion.left = 0;
+				drawExplosion.top = 0;
+				drawExplosion.right = 80;
+				drawExplosion.bottom = 80;
+				gameSprites->Draw(explosionTexture, &drawExplosion, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 				enemiesList[i].setAnimTime(enemiesList[i].getAnimTime() - 1);
 				if (enemiesList[i].getAnimTime() <= 0) {
 					enemiesList[i].setActive(false);
@@ -599,21 +604,6 @@ void Game::moveEnemies() {
 					curLevel.boss1Actions(enemyBullets, i);
 				}
 			}
-			if (enemiesList[i].getType() == 4) {
-				if (enemiesList[i].getCooldown() <= 0) {
-					for (int j = 0; j < 2; j++) {
-						shot.x = 0;
-						if (j == 0)
-							shot.y = -1;
-						if (j == 1)
-							shot.y = 1;
-						enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
-							D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, redBall, 1, 3);
-						enemiesList[i].setCooldown(6);
-					}
-				}
-				else enemiesList[i].setCooldown(enemiesList[i].getCooldown()-1);
-			}
 		}
 	}
 }
@@ -625,17 +615,31 @@ void Game::advance(int i) {
 	enemiesList[i].moveTo(1);
 	if (enemiesList[i].getCooldown() <= 0) {
 		if (enemiesList[i].getType() == 0)
-			enemiesList[i].fire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, greenBullet, 0, 3);
+			enemiesList[i].fire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["greenBullet"], 0, 3);
 		if (enemiesList[i].getType() == 1)
-			enemiesList[i].fire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, purpleBullet, 0, 3);
+			enemiesList[i].fire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["purpleBullet"], 0, 3);
 		if (enemiesList[i].getType() == 3) {
 			for (int j = 0; j < 5; j++) {
-				enemiesList[i].fire(enemyBullets, shot, enemiesList[i].getPos(), MAX_BULLETS, purpleBullet, 0, 3);
+				enemiesList[i].fire(enemyBullets, shot, enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["purpleBullet"], 0, 3);
 				shot = rotateVector(shot, PI/6, 1);
 				enemiesList[i].setCooldown(50);
 			}
 		}
-
+		if (enemiesList[i].getType() == 4) {
+			if (enemiesList[i].getCooldown() <= 0) {
+				for (int j = 0; j < 2; j++) {
+					shot.x = 0;
+					if (j == 0)
+						shot.y = -1;
+					if (j == 1)
+						shot.y = 1;
+					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
+						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, drawBoundaries["redBall"], 1, 3);
+					enemiesList[i].setCooldown(6);
+				}
+			}
+			else enemiesList[i].setCooldown(enemiesList[i].getCooldown()-1);
+		}
 		if (enemiesList[i].getType() != 3)
 			enemiesList[i].setCooldown(20);
 	}
@@ -654,7 +658,7 @@ void Game::waiting(int i) {
 			for (int j = 0; j < 8; j++) {
 				shot = enemiesList[i].aim8Ways(j);
 				enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
-					D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, redBall, 1, 3);
+					D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, drawBoundaries["redBall"], 1, 3);
 				enemiesList[i].setCooldown(30);
 			}
 				//break;
@@ -670,25 +674,25 @@ void Game::waiting(int i) {
 			shot = rotateVector(shot, PI/4, 1);
 			for (int j = 0; j < 2; j++) {	
 				enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, largeGreen, 1, 2);
+						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 2);
 				shot = rotateVector(shot, PI/4, 0);
 				/*if (j == 0) {
 					shot.x = -1*sqrt(3.0f);
 					shot.y = 1;
 					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, largeGreen, 1, 3);
+						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 3);
 				}
 				if (j == 1) {
 					shot.x = 0;
 					shot.y = 1;
 					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, largeGreen, 1, 3);
+						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 3);
 				}
 				if (j == 2) {
 					shot.x = sqrt(3.0f);
 					shot.y = 1;
 					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), 
-						enemiesList[i].getPos(), MAX_BULLETS, largeGreen, 1, 3);
+						enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 3);
 				}*/		
 			}
 			enemiesList[i].setCooldown(35);	
@@ -745,89 +749,5 @@ void Game::makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int m
 
 
 /* ---------------- */
-
-void Game::setRects() {
-	player.left = 408;
-	player.top = 1988;
-	player.right = 425;
-	player.bottom = 2050;
-
-	playerBox.left = 0;
-	playerBox.right=6;
-	playerBox.top = 0;
-	playerBox.bottom=6;
-	kaguya.left=454;
-	kaguya.top=1360;
-	kaguya.right=500;
-	kaguya.bottom=1420;
-	aimedShot.left=281; 
-	aimedShot.top=1235;
-	aimedShot.right=330; 
-	aimedShot.bottom=1290;
-	fairy.left=172; 
-	fairy.top=310;
-	fairy.right=219; 
-	fairy.bottom=371;
-	spreadShot.left=454;
-	spreadShot.top=380;
-	spreadShot.right=500;
-	spreadShot.bottom=435;
-	boss.left=445;
-	boss.top=991;
-	boss.right=502;
-	boss.bottom=1050;
-	verticalShot.left=105;
-	verticalShot.top=930;
-	verticalShot.right=172;
-	verticalShot.bottom=990;
-	laser.left=127;
-	laser.right=143;
-	laser.top=0;
-	laser.bottom=16;
-	greenBullet.left = 159;
-	greenBullet.right = 175;
-	greenBullet.top = 22;
-	greenBullet.bottom = 40;
-	redBall.left = 30; 
-	redBall.top = 40;
-	redBall.right = 48; 
-	redBall.bottom = 62;
-	purpleBullet.left = 62; 
-	purpleBullet.top = 20;
-	purpleBullet.right = 78; 
-	purpleBullet.bottom = 38;
-	greenLaser.left = 0;
-	greenLaser.top = 0;
-	greenLaser.right = 110;
-	greenLaser.bottom = 32;
-	levelText.top = 250;
-	levelText.bottom = 300;
-	descText.top = 310;
-	descText.bottom = 360;
-	smallGreenParticle.left = 282;
-	smallGreenParticle.top = 1980;
-	smallGreenParticle.right = 322;
-	smallGreenParticle.bottom = 2056;
-	bigGreenParticle.left = 333;
-	bigGreenParticle.top = 1988;
-	bigGreenParticle.right = 377;
-	bigGreenParticle.bottom = 2056;
-	topRight.left = 550;
-	topRight.right = 800;
-	topRight.top = 0;
-	topRight.bottom = 40;
-	largeGreen.left = 415;
-	largeGreen.top = 45;
-	largeGreen.right = 445;
-	largeGreen.bottom = 80;
-	blueBall.left = 130;
-	blueBall.top = 40;
-	blueBall.right = 145;
-	blueBall.bottom = 65;
-	yellowStar.left = 210;
-	yellowStar.top = 215;
-	yellowStar.right = 225;
-	yellowStar.bottom = 232;
-}
 
 

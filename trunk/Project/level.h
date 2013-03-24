@@ -4,6 +4,7 @@
 //#include "game.h"
 #include "enemy.h"
 #include <vector>
+#include <string>
 #include <map>
 
 #define SCREEN_WIDTH  800
@@ -30,7 +31,7 @@ public:
 	int getTime();
 	void setRects();
 	bool isClear();
-	vector<Enemy> getEnemies();
+	map<string,RECT> getBoundaries();
 	void boss1Actions(Bullet* enemyBullets, int i);
 	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 };
