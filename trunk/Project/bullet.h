@@ -13,7 +13,7 @@ public:
 	void setTarget(D3DXVECTOR3 _target);
 	D3DXVECTOR3 getTarget();
 	void moveSpiral(int i, float rate, float s_, float initS);
-	void randomSpiral(int i, float s_);
+	void randomSpiral(int i, float rate, float s_);
 };
 
 #endif

@@ -1,3 +1,7 @@
+/* main.cpp
+The entry point to the program.  Creates a window and runs Direct3D through a Game object. WinMain and WindowProc code from a sample 
+at www.directxtutorial.com, except for the Game object. */
+
 #include "game.h"
 
 // the WindowProc function prototype
@@ -76,9 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
             break;
 
         // Run game code here
-        // ...
 		game.gameloop();
-        // ...
     }
 
 	game.cleanup();

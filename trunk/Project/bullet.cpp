@@ -29,7 +29,7 @@ void Bullet::moveSpiral(int i, float rate, float s_, float initS) {
 	this->setS(curS+s_);
 }
 
-void Bullet::randomSpiral(int i, float s_) {
+void Bullet::randomSpiral(int i, float rate, float s_) {
 	double x, y, curS;
 	curS = this->getS();
 	if (rand()%2 == 0) {

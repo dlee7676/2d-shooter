@@ -39,6 +39,7 @@ public:
 	D3DXVECTOR3 rotateAim(int direction, double angle);
 	D3DXVECTOR3 fireSpiral(double t);
 	D3DXVECTOR3 aim8Ways(int num);
+	D3DXVECTOR3 aim3Ways(int num);
 	void bossPattern(int interval, int time);
 	//void moveEnemies();
 };

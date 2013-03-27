@@ -1,7 +1,10 @@
+/*game.h
+The core class of the game.  Controls the use of all other classes related to the game.  
+Handles drawing of game objects and game control. */
+
 #ifndef GAME_H
 #define GAME_H
 
-// include the basic windows header file
 #include <windows.h>
 #include <windowsx.h>
 #include <d3d9.h>
@@ -20,6 +23,7 @@ using namespace std;
 // define the screen resolution
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 600
+
 #define PI atan(1.0f)*4
 #define MAX_BULLETS 1000
 
@@ -45,8 +49,7 @@ private:
 	D3DXVECTOR3 bgPos, playerTarget;
 	D3DXMATRIX spriteManip, rotation, scaling, translation1, translation2;
 	RECT bgTop, bgBottom, levelText, subText1, drawExplosion;
-	/*RECT bgTop, bgBottom, player, playerBox, laser, greenBullet, purpleBullet, redBall, kaguya, aimedShot, fairy, verticalShot, spreadShot, boss,
-		explosionAnim, levelText, descText, greenLaser, smallGreenParticle, bigGreenParticle, topRight, largeGreen, blueBall, yellowStar;*/
+
 	map<string,RECT> drawBoundaries;
 	bool focus, invincible, spellcard1, spellcard2, clear;
 	Bullet* playerBullets;
@@ -79,12 +82,9 @@ public:
 	void drawPlayer();
 	void drawPlayerBullets();
 	void drawEnemyBullets();
-	void rotatingFire(Enemy* i, int direction, double angle, int type);
-	void fireSpiral(double t, Enemy* enemy_, int size);
-	void moveSpiral(int i, float s_, float initS);
-	void chaosSpiral(int i, float s_);
 	void moveEnemies();
 	void drawTitle();
+	void drawClearText();
 	void drawEnemy();
 	void checkEnemyHits(); 
 	void advance(int i);
@@ -94,7 +94,6 @@ public:
 	void resetMatrices();
 	void rotateBullets(double angle, int i);
 	void refreshEnemies();
-	RECT calcHitbox(RECT bounds);
 	D3DXMATRIX scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, int y, D3DXMATRIX scaling, float xFactor, float yFactor);
 	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 };
