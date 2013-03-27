@@ -1,3 +1,6 @@
+/* particleSystem.cpp
+Defines functions for creating and updating a set of particle objects. */
+
 #include "particleSystem.h"
 
 ParticleSystem::ParticleSystem() {

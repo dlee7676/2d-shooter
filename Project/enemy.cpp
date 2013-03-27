@@ -13,7 +13,7 @@ void Enemy::init(int x, int y, int z, RECT bounds_, int type_, int midX, int mid
 	end.y = endY;
 	end.z = 0;
 	life = life_;
-	targeting = D3DXVECTOR3(0,1,0);
+	targeting = D3DXVECTOR3(0,-1,0);
 }
 
 void Enemy::wait() {
@@ -139,7 +139,7 @@ D3DXVECTOR3 Enemy::rotateAim(int direction, double angle) {
 
 	D3DXVECTOR3 newTarget = targeting;
 	if (abs(targeting.x) < 0.001)
-		setTargeting(D3DXVECTOR3(rand()%2-1,1,0));
+		setTargeting(D3DXVECTOR3(0,1,0));
 	newTarget.x *= 3;
 	newTarget.y *= 3;
 	return newTarget;
@@ -170,6 +170,24 @@ D3DXVECTOR3 Enemy::aim8Ways(int num) {
 	return shot;
 }
 
+D3DXVECTOR3 Enemy::aim3Ways(int num) {
+	D3DXVECTOR3 shot;
+	if (num == 0) {
+		shot.x = -1*sqrt(3.0f);
+		shot.y = 1;
+	}
+	if (num == 1) {
+		shot.x = 0;
+		shot.y = 1;
+	}
+	if (num == 2) {
+		shot.x = sqrt(3.0f);
+		shot.y = 1;
+	}		
+	shot.z = 0;
+	return shot;
+}
+
 void Enemy::bossPattern(int interval, int time) {
 	D3DXVECTOR3 direction;
 	if (time % interval == 0) {
@@ -186,60 +204,3 @@ void Enemy::bossPattern(int interval, int time) {
 		this->move(direction.x*this->getSpeed(), direction.y*this->getSpeed(), direction.z*this->getSpeed());
 	else this->setHeading(D3DXVECTOR3(-1*direction.x,-1*direction.y,0));
 }
-
-
-
-
-
-/*void Enemy::fireVertical() {
-	D3DXVECTOR3 shot;
-	if (enemiesList[i].getCooldown() <= 0) {
-		for (int j = 0; j < 2; j++) {
-			shot.x = 0;
-			if (j == 0)
-				shot.y = -1;
-			if (j == 1)
-				shot.y = 1;
-			enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
-				D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, redBall, 2, 3);
-			enemiesList[i].setCooldown(6);
-		}
-	}
-	else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);
-}
-
-void Enemy::moveEnemies() {
-	int action = this->getAction();
-	if (this->isActive()) {
-		// move enemies
-		switch(action) {
-			case 0: {
-				advance(i);
-				break;
-			}
-			case 1: {
-				waiting(i);
-				break;
-			}
-			case 2: {
-				//moves.y = -5;
-				if (this->getCooldown() <= 0) {
-					this->setCooldown(30);	
-				}
-				else this->setCooldown(this->getCooldown() - 1);
-				this->moveTo(0);
-				if (this->getPos(0) < -10 || this->getPos(1) < -10 || this->getPos(0) > SCREEN_WIDTH || this->getPos(1) > SCREEN_HEIGHT) {
-   					this->setActive(false);
-				}
-				break;
-			}
-			case 3: {
-				bossPattern(i, 100);
-				boss1Actions(i);
-			}
-		}
-		if (this->getType() == 4) {
-			fireVertical();
-		}
-	}
-}*/

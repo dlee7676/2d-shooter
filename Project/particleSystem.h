@@ -1,3 +1,6 @@
+/* particleSystem.h
+This class contains functions that allow a set of randomly moving particles to be generated. */
+
 #ifndef PARTICLESYSTEM_H
 #define PARTICLESYSTEM_H
 

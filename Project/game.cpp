@@ -1,11 +1,14 @@
+/* game.cpp
+Contains the code for running the game and drawing the game objects. */
+
 #include "game.h"
 
+/* used to bring the window handle from the main function into the Game object for initializing Direct3D */
 void Game::setHwnd(HWND _hwnd) {
 	hwnd = _hwnd;
 }
 
-/* d3d initialization */
-
+/* initd3d: initializes a Direct3D object */
 void Game::initd3d() {
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
 
@@ -24,24 +27,27 @@ void Game::initd3d() {
 	initMenuScreen();
 }
 
+/* gameloop(): function run repeatedly in the message loop, executes drawing code and responds to game controls */
 void Game::gameloop() {
 	render();
 	handleInput();
 }
 
-/* controls */
-
+/* handleInput(): contains responses to key presses of the game controls */
 void Game::handleInput() {
-	if (GetAsyncKeyState(VK_ESCAPE)) {
+	// Esc returns to the menu screen from gameplay
+	if (GetAsyncKeyState(VK_ESCAPE) && screen != 0) {
 		screen = 0;
-		//curLevel.init(&enemiesList);
-		//delete levelBackgroundTexture;
+		levelBackgroundTexture->Release();
 		enemiesList.clear();
-		//subunits.clear();
+		subunits.clear();
 		initMenuScreen();
 	}
+
+	// controls for the menu screen
 	switch (screen) {
 		case 0: {
+			// move between options
 			if (GetAsyncKeyState(VK_DOWN)) {
 				menuSelection++;
 				Sleep(150);
@@ -50,6 +56,7 @@ void Game::handleInput() {
 				menuSelection--;
 				Sleep(150);
 			}
+			// select an option
 			if (GetAsyncKeyState(VK_RETURN)) {
 				if (menuSelection == 0) {
 					screen = 1;
@@ -58,6 +65,7 @@ void Game::handleInput() {
 				if (menuSelection == 1)
 					PostQuitMessage(0);
 			}
+			// loop the menu selections
 			if (menuSelection < 0)
 				menuSelection = 1;
 			if (menuSelection > 1)
@@ -66,12 +74,7 @@ void Game::handleInput() {
 		}
 
 		case 1: {
-			if (GetAsyncKeyState(VK_SHIFT))
-				playerObject.setSpeed(3);
-			else playerObject.setSpeed(6);
-			//if (focus)
-				
-			//else moveRate = 6;
+			// direction keys move the player
 			if (GetAsyncKeyState(VK_DOWN) && (!playerObject.isExploding()) && playerObject.getPos(1) + playerObject.getSpeed() + 32 < SCREEN_HEIGHT) 
 				playerObject.setPos(1, (playerObject.getPos(1) + playerObject.getSpeed()));
 			if (GetAsyncKeyState(VK_UP) && (!playerObject.isExploding()) && playerObject.getPos(1) - playerObject.getSpeed() > 0) 
@@ -80,40 +83,38 @@ void Game::handleInput() {
 				playerObject.setPos(0, (playerObject.getPos(0) - playerObject.getSpeed()));
 			if (GetAsyncKeyState(VK_RIGHT) && (!playerObject.isExploding()) && playerObject.getPos(0) + playerObject.getSpeed() + 22 < SCREEN_WIDTH)
 				playerObject.setPos(0, (playerObject.getPos(0) + playerObject.getSpeed()));
-			/*if (GetAsyncKeyState('Z')) 
-				playerObject.getPos().z -= 5;
-			if (GetAsyncKeyState('A'))
-				playerObject.getPos().z += 5;*/
+
+			// holding Shift causes the player to move at half speed for better precision
+			if (GetAsyncKeyState(VK_SHIFT))
+				playerObject.setSpeed(3);
+			else playerObject.setSpeed(6);
+
+			// spacebar fires a spread of 6 bullets with the middle being more powerful
 			if (GetAsyncKeyState(VK_SPACE) && (!playerObject.isExploding())) {
 				for (int num = 0; num < 6; num++) {
+					// place the bullets in front of the player if they are inactive
 					for (int i = 0; i < MAX_BULLETS; i++) {
-						//if (cooldown <= 0) {
-							if (!playerBullets[i].isActive()) {
-								playerBullets[i].setActive(true);
- 								playerBullets[i].init(playerObject.getPos(0)-20+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], num, 1);
-								break;
-							}
-							//cooldown = 1;
-						//}
-						//else cooldown--;
+						if (!playerBullets[i].isActive()) {
+							playerBullets[i].setActive(true);
+ 							playerBullets[i].init(playerObject.getPos(0)-20+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], num, 1);
+							break;
+						}
 					}
 				}
+				// duplicate the middle bullets to increase the damage dealt by the middle of the spread
 				for (int num = 0; num < 4; num++) {
 					for (int i = 0; i < MAX_BULLETS; i++) {
-						//if (cooldown <= 0) {
-							if (!playerBullets[i].isActive()) {
-								playerBullets[i].setActive(true);
- 								playerBullets[i].init(playerObject.getPos(0)-10+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], 3, 1);
-								break;
-							}
-							//cooldown = 1;
-						//}
-						//else cooldown--;
+						if (!playerBullets[i].isActive()) {
+							playerBullets[i].setActive(true);
+ 							playerBullets[i].init(playerObject.getPos(0)-10+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], 3, 1);
+							break;
+						}
 					}
 				}
 			}
-			if (GetAsyncKeyState(VK_RETURN)) {
 
+			// enter goes to the next stage if the level is over
+			if (GetAsyncKeyState(VK_RETURN)) {
 				if(curLevel.isClear())
 					screen = 2;
 			}
@@ -122,6 +123,7 @@ void Game::handleInput() {
 	}
 }
 
+/* render(): determines the positions of game objects and draws them on the screen. */
 void Game::render() {
 	pDev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0,0,0), 1.0f, 0);
 	pDev->BeginScene();
@@ -143,37 +145,26 @@ void Game::render() {
 		}
 		case 1: {
 			gameSprites->Begin(D3DXSPRITE_ALPHABLEND);
-			// draw background
+			// draw the game elements
 			scrollBackground();	
-			//draw player
 			drawPlayer();
-			//draw particles
 			sceneryParticles();
-			// draw player bullets
 			drawPlayerBullets();
-			// draw enemy bullets
 			drawEnemyBullets();
 			// add any new enemies
 			curLevel.level1Script();
 			// draw enemies
 			drawEnemy();
+			// handle enemy collisions with player bullets
 			checkEnemyHits();
 			// move enemies
 			moveEnemies();
 			refreshEnemies();
 			gameSprites->End();
-
+			
 			drawTitle();
-			wchar_t buffer[16];
-			wsprintf(buffer, TEXT("%d"), hits);
-			wstring s(TEXT("Hits taken: "));
-			s += wstring(buffer);
-			//font->DrawText(NULL, s.c_str(), -1, &topRight, 0, fontColor2); 
+			drawClearText();
 			curLevel.incrementTime();
-			if (curLevel.isClear()) {
-				font->DrawText(NULL, TEXT("Stage Clear!"), -1, &levelText, 0, fontColor2); 
-				font->DrawText(NULL, s.c_str(), -1, &subText1, 0, fontColor2);
-			}
 			break;
 		}
 
@@ -189,22 +180,13 @@ void Game::render() {
 	pDev->Present(NULL, NULL, NULL, NULL);
 }
 
+
+/* cleanup(): frees the memory associated with the game's objects. */
 void Game::cleanup() {
 	d3d->Release();
 	pDev->Release();
 	gameSprites->Release();
 	menuBackgroundTexture->Release();
-}
-
-/*------------------*/
-
-RECT Game::calcHitbox(RECT bounds) {
-	RECT hitbox;
-	hitbox.left = 0;
-	hitbox.right = (bounds.right - bounds.left)/4;
-	hitbox.bottom = (bounds.bottom - bounds.top)/4;
-	hitbox.top = 0;
-	return hitbox;
 }
 
 D3DXVECTOR3 Game::rotateVector(D3DXVECTOR3 vec, double angle, size_t direction) {
@@ -270,6 +252,17 @@ void Game::drawTitle() {
 		font->DrawText(NULL, TEXT("- Stage 1 -"), -1, &levelText, 0, fontColor);
 	}
 	else fontColor = fontColor = D3DCOLOR_ARGB(255,200,200,255); 
+}
+
+void Game::drawClearText() {
+	wchar_t buffer[16];
+	wsprintf(buffer, TEXT("%d"), hits);
+	wstring s(TEXT("Hits taken: "));
+	s += wstring(buffer);
+	if (curLevel.isClear()) {
+		font->DrawText(NULL, TEXT("Stage Clear!"), -1, &levelText, 0, fontColor2); 
+		font->DrawText(NULL, s.c_str(), -1, &subText1, 0, fontColor2);
+	}
 }
 
 void Game::initMenuScreen() {
@@ -491,7 +484,7 @@ void Game::drawEnemyBullets() {
 	int startX, startY, bulletType;
 	for (int i = 0; i < MAX_BULLETS; i++) {
 		if (enemyBullets[i].isActive()) {
-			if (enemyBullets[i].inBounds(drawBoundaries["playerBox"], playerObject.getPos(0) + 10, playerObject.getPos(1) + 5) && (!playerObject.isExploding()) && !invincible) {
+			if (enemyBullets[i].inBounds(drawBoundaries["playerBox"], playerObject.getPos(0) + 11, playerObject.getPos(1) + 13) && (!playerObject.isExploding()) && !invincible) {
 				playerObject.setExploding(true);
 				hits++;
 				enemyBullets[i].setActive(false);
@@ -505,9 +498,9 @@ void Game::drawEnemyBullets() {
 			gameSprites->Draw(bulletTexture, &enemyBullets[i].getInitialBounds(), NULL, &enemyBullets[i].getPos(), 0xFFFFFFFF);
 			enemyBullets[i].move(moveRate.x*enemyBullets[i].getSpeed(), moveRate.y*enemyBullets[i].getSpeed(), 0); 
 			if (enemyBullets[i].getType() == 3)
-				chaosSpiral(i, 0.01f);
+				enemyBullets[i].randomSpiral(i, 0.5f, 0.01f);
 			if (enemyBullets[i].getType() == 2)
-				moveSpiral(i, 0.01f, 15.0f);
+				enemyBullets[i].moveSpiral(i, 0.1f, 0.05f, 20.0f);
 			if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < 0 || enemyBullets[i].getPos(0) < 0 || enemyBullets[i].getPos(0) > SCREEN_WIDTH)
 				enemyBullets[i].setActive(false);
 			if (curLevel.isClear())
@@ -536,8 +529,14 @@ void Game::drawEnemy() {
 				}
 			}
 			else {
+				if (enemiesList[i].getType() == -1) {
+					spriteManip = scale(translation1, translation2, enemiesList[i].getPos(0), enemiesList[i].getPos(1), scaling, 1.3, 1.3);
+					gameSprites->SetTransform(&spriteManip);
+				}
 				gameSprites->Draw(enemyTexture, &enemiesList[i].getInitialBounds(), NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 			}
+			resetMatrices();
+			gameSprites->SetTransform(&spriteManip);
 		}
 	}
 }
@@ -670,32 +669,12 @@ void Game::waiting(int i) {
 	}
 	else if (enemiesList[i].getType() == 2) {
 		if (enemiesList[i].getCooldown() <= 0) {
-			shot = D3DXVECTOR3(0,1,0); 
-			shot = rotateVector(shot, PI/4, 1);
-			for (int j = 0; j < 2; j++) {	
+			for (int j = 0; j < 3; j++) {	
+				shot = enemiesList[i].aim3Ways(j);
 				enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
 						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 2);
-				shot = rotateVector(shot, PI/4, 0);
-				/*if (j == 0) {
-					shot.x = -1*sqrt(3.0f);
-					shot.y = 1;
-					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 3);
-				}
-				if (j == 1) {
-					shot.x = 0;
-					shot.y = 1;
-					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 3);
-				}
-				if (j == 2) {
-					shot.x = sqrt(3.0f);
-					shot.y = 1;
-					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0), shot.y+enemiesList[i].getPos(1), shot.z), 
-						enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 3);
-				}*/		
 			}
-			enemiesList[i].setCooldown(35);	
+			enemiesList[i].setCooldown(50);	
 		}
 		else enemiesList[i].setCooldown(enemiesList[i].getCooldown() - 1);		
 		enemiesList[i].wait();
@@ -704,50 +683,3 @@ void Game::waiting(int i) {
 	}
 	else enemiesList[i].setAction(2);
 }
-
-void Game::moveSpiral(int i, float s_, float initS) {
-	double x, y, s;
-	if (enemyBullets[i].isActive()) {
-		s = enemyBullets[i].getS();
-		if (s == 0)
-			enemyBullets[i].setS(initS);
-		if (i%2 == 0) {
-			x = s*cos(s);
-			y = s*sin(s);
-		}
-		else {
-			x = -s*cos(s);
-			y = -s*sin(s);
-		}
-		enemyBullets[i].setPos(0.1*x+enemyBullets[i].getPos(0), 0.1*y+enemyBullets[i].getPos(1), 0);
-		enemyBullets[i].setS(enemyBullets[i].getS()+s_);
-	}
-}
-
-void Game::chaosSpiral(int i, float s_) {
-	double x, y, s;
-	if (enemyBullets[i].isActive()) {
-		s = enemyBullets[i].getS();
-		if (rand()%2 == 0) {
-			x = s*cos(s);
-			y = s*sin(s);
-		}
-		else {
-			x = -s*cos(s);
-			y = -s*sin(s);
-		}
-		enemyBullets[i].setPos(x+enemyBullets[i].getPos(0), y+enemyBullets[i].getPos(1), 0);
-		enemyBullets[i].setS(enemyBullets[i].getS()+s_);
-	}
-}
-
-void Game::makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed) {
-	Enemy next;
-	enemiesList.push_back(next);
-	enemiesList.back().init(x, y, z, bounds, type, midX, midY, endX, endY, life, speed);
-}
-
-
-/* ---------------- */
-
-
