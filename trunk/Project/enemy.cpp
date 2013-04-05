@@ -114,16 +114,13 @@ void Enemy::setEnd(D3DXVECTOR3 _end) {
 	end = _end;
 }
 
-void Enemy::fire(Bullet* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 startPos, int size, RECT bounds, int type_, float speed_) {
-	for (int i=0; i < size; i++) {
-		if (!enemyBullets[i].isActive()) {
-			enemyBullets[i].init(startPos.x, startPos.y, startPos.z, bounds, type_, speed_);
-			D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x+10 - this->getPos(0), targetPos.y+5 - this->getPos(1), 0);
-			enemyBullets[i].setTarget(targetPos);
-			//enemyBullets[i].setSpeed(2);
-			break;
-		}
-	}
+void Enemy::fire(vector<Bullet>* enemyBullets, D3DXVECTOR3 targetPos, D3DXVECTOR3 startPos, int size, RECT bounds, int type_, float speed_) {
+	Bullet next;
+	enemyBullets->push_back(next);
+	enemyBullets->back().init(startPos.x, startPos.y, startPos.z, bounds, type_, speed_);
+	D3DXVECTOR3 target = D3DXVECTOR3(targetPos.x+10 - this->getPos(0), targetPos.y+5 - this->getPos(1), 0);
+	enemyBullets->back().setTarget(targetPos);
+//enemyBullets[i].setSpeed(2);
 }
 
 D3DXVECTOR3 Enemy::rotateAim(int direction, double angle) {

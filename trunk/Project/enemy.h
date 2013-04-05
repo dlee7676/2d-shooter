@@ -3,6 +3,9 @@
 
 #include "gameObject.h"
 #include "bullet.h"
+#include <vector>
+
+using namespace std;
 
 class Enemy : public GameObject {
 	
@@ -35,7 +38,7 @@ public:
 	void setMid(D3DXVECTOR3 _mid);
 	D3DXVECTOR3 getEnd();
 	void setEnd(D3DXVECTOR3 _end);
-	void fire(Bullet* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, RECT bounds, int type_, float speed_);
+	void fire(vector<Bullet>* enemyBullets, D3DXVECTOR3 playerPos, D3DXVECTOR3 startPos, int size, RECT bounds, int type_, float speed_);
 	D3DXVECTOR3 rotateAim(int direction, double angle);
 	D3DXVECTOR3 fireSpiral(double t);
 	D3DXVECTOR3 aim8Ways(int num);
