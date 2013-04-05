@@ -48,19 +48,19 @@ private:
 
 	D3DXVECTOR3 bgPos, playerTarget;
 	D3DXMATRIX spriteManip, rotation, scaling, translation1, translation2;
-	RECT bgTop, bgBottom, levelText, subText1, drawExplosion;
+	RECT bgTop, bgBottom, levelText, subText1, drawExplosion, topRight;
 
 	map<string,RECT> drawBoundaries;
 	bool focus, invincible, spellcard1, spellcard2, clear;
-	Bullet* playerBullets;
-	Bullet* enemyBullets;
-
+	//Bullet* playerBullets;
+	//Bullet* enemyBullets;
+	vector<Bullet> playerBullets, enemyBullets;
 	vector<Enemy> enemiesList, subunits;
 	ParticleSystem particleHandler;
 	GameObject playerObject;
 	Level curLevel;
 	
-	int leveltime, offset, curFrame, curRow, moveRate, fireDirection, hits;
+	int leveltime, offset, curFrame, curRow, moveRate, fireDirection, hits, score;
 	int curAlpha;
 	double currentT;
 
@@ -73,8 +73,7 @@ public:
 	void cleanup();
 
 	void initMenuScreen();
-	void initLevel1();
-	void setRects();
+	void initLevel(int level);
 	void scrollBackground();
 	void sceneryParticles();
 	void level1Script();
@@ -84,7 +83,7 @@ public:
 	void drawEnemyBullets();
 	void moveEnemies();
 	void drawTitle();
-	void drawClearText();
+	void drawTextAndNumber(LPCWSTR text, int num, RECT pos, D3DCOLOR fontColor);
 	void drawEnemy();
 	void checkEnemyHits(); 
 	void advance(int i);

@@ -32,7 +32,7 @@ public:
 	void setRects();
 	bool isClear();
 	map<string,RECT> getBoundaries();
-	void boss1Actions(Bullet* enemyBullets, int i);
+	void boss1Actions(vector<Bullet>* enemyBullets, int i);
 	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 };
 

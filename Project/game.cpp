@@ -3,12 +3,12 @@ Contains the code for running the game and drawing the game objects. */
 
 #include "game.h"
 
-/* used to bring the window handle from the main function into the Game object for initializing Direct3D */
+/* setHwnd(): used to bring the window handle from the main function into the Game object for initializing Direct3D */
 void Game::setHwnd(HWND _hwnd) {
 	hwnd = _hwnd;
 }
 
-/* initd3d: initializes a Direct3D object */
+/* initd3d(): initializes a Direct3D object */
 void Game::initd3d() {
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
 
@@ -39,6 +39,8 @@ void Game::handleInput() {
 	if (GetAsyncKeyState(VK_ESCAPE) && screen != 0) {
 		screen = 0;
 		levelBackgroundTexture->Release();
+		playerBullets.clear();
+		enemyBullets.clear();
 		enemiesList.clear();
 		subunits.clear();
 		initMenuScreen();
@@ -61,6 +63,7 @@ void Game::handleInput() {
 				if (menuSelection == 0) {
 					screen = 1;
 					initLevel1();
+					menuBackgroundTexture->Release();
 				}
 				if (menuSelection == 1)
 					PostQuitMessage(0);
@@ -90,26 +93,18 @@ void Game::handleInput() {
 			else playerObject.setSpeed(6);
 
 			// spacebar fires a spread of 6 bullets with the middle being more powerful
-			if (GetAsyncKeyState(VK_SPACE) && (!playerObject.isExploding())) {
+			if (GetAsyncKeyState(VK_SPACE) && (!playerObject.isExploding()) && curLevel.getTime()%2 == 0) {
 				for (int num = 0; num < 6; num++) {
-					// place the bullets in front of the player if they are inactive
-					for (int i = 0; i < MAX_BULLETS; i++) {
-						if (!playerBullets[i].isActive()) {
-							playerBullets[i].setActive(true);
- 							playerBullets[i].init(playerObject.getPos(0)-20+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], num, 1);
-							break;
-						}
-					}
+					// initialize bullets in front of the player
+					Bullet next;
+					playerBullets.push_back(next);
+ 					playerBullets.back().init(playerObject.getPos(0)-20+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], num, 1);
 				}
 				// duplicate the middle bullets to increase the damage dealt by the middle of the spread
 				for (int num = 0; num < 4; num++) {
-					for (int i = 0; i < MAX_BULLETS; i++) {
-						if (!playerBullets[i].isActive()) {
-							playerBullets[i].setActive(true);
- 							playerBullets[i].init(playerObject.getPos(0)-10+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], 3, 1);
-							break;
-						}
-					}
+					Bullet next;
+					playerBullets.push_back(next);
+ 					playerBullets.back().init(playerObject.getPos(0)-10+num*10, playerObject.getPos(1), 0, drawBoundaries["laser"], 3, 1);
 				}
 			}
 
@@ -163,16 +158,16 @@ void Game::render() {
 			gameSprites->End();
 			
 			drawTitle();
-			drawClearText();
 			curLevel.incrementTime();
 			break;
 		}
 
 		case 2: {
+			levelText.right = 800;
 			gameSprites->Begin(D3DXSPRITE_ALPHABLEND);
 			scrollBackground();
 			gameSprites->End();
-			font->DrawText(NULL, TEXT("Add further stages here"), -1, &levelText, 0, fontColor2); 
+			font->DrawText(NULL, TEXT("Further stages to be added"), -1, &levelText, 0, fontColor2); 
 			break;
 		}
 	}
@@ -186,7 +181,7 @@ void Game::cleanup() {
 	d3d->Release();
 	pDev->Release();
 	gameSprites->Release();
-	menuBackgroundTexture->Release();
+	font->Release();
 }
 
 D3DXVECTOR3 Game::rotateVector(D3DXVECTOR3 vec, double angle, size_t direction) {
@@ -252,17 +247,19 @@ void Game::drawTitle() {
 		font->DrawText(NULL, TEXT("- Stage 1 -"), -1, &levelText, 0, fontColor);
 	}
 	else fontColor = fontColor = D3DCOLOR_ARGB(255,200,200,255); 
+	drawTextAndNumber(TEXT("Score: "), score, topRight, fontColor2);
+	if (curLevel.isClear()) {
+		font->DrawText(NULL, TEXT("Stage Clear!"), -1, &levelText, 0, fontColor);
+		drawTextAndNumber(TEXT("Hits taken: "), hits, subText1, fontColor);
+	}
 }
 
-void Game::drawClearText() {
+void Game::drawTextAndNumber(LPCWSTR text, int num, RECT pos, D3DCOLOR fontColor) {
 	wchar_t buffer[16];
-	wsprintf(buffer, TEXT("%d"), hits);
-	wstring s(TEXT("Hits taken: "));
-	s += wstring(buffer);
-	if (curLevel.isClear()) {
-		font->DrawText(NULL, TEXT("Stage Clear!"), -1, &levelText, 0, fontColor2); 
-		font->DrawText(NULL, s.c_str(), -1, &subText1, 0, fontColor2);
-	}
+	wsprintf(buffer, TEXT("%d"), num);
+	wstring s(text);
+	s += wstring(buffer); 
+	font->DrawText(NULL, s.c_str(), -1, &pos, 0, fontColor);
 }
 
 void Game::initMenuScreen() {
@@ -286,41 +283,46 @@ void Game::initMenuScreen() {
 	quit.top=start.bottom+30;
 	quit.bottom=quit.top+45;
 	menuSelection = 0;
+	score = 0;
 }
 
-void Game::initLevel1() {
-	if (FAILED(D3DXCreateSprite(pDev, &gameSprites))) {
-		MessageBox(hwnd, TEXT("Error Loading Sprite"), TEXT("Error"), MB_ICONERROR);
-		return;
-	} 
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("ships.png"), &gameTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
+void Game::initLevel(int level, int spellcards_) {
+	switch(level) {
+		case 1: {
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("ships.png"), &gameTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("enemySprites.png"), &enemyTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("laser.jpg"), &laserTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("explosionSpriteSheet.png"), &explosionTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("bulletSprites.png"), &bulletTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("forest.png"), &levelBackgroundTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+			break;
+		}
+		case 2: {
+			if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("prismriver.jpg"), &levelBackgroundTexture))) {
+				MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
+				return;
+			}
+		}
 	}
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("enemySprites.png"), &enemyTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
-	}
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("laser.jpg"), &laserTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
-	}
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("forest.png"), &levelBackgroundTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
-	}
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("explosionSpriteSheet.png"), &explosionTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
-	}
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("bulletSprites.png"), &bulletTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
-	}
-	if (FAILED(D3DXCreateTextureFromFile(pDev, TEXT("greenLaserRay.png"), &greenLaserTexture))) {
-		MessageBox(hwnd, TEXT("Error Loading Texture"), TEXT("Error"), MB_ICONERROR);
-		return;
-	}
+	
 	D3DXCreateFont(pDev, 40, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 
 		DEFAULT_PITCH | FF_DONTCARE, TEXT("Franklin Gothic Demi"), &font); 
 	//curLevel.getTime() = 0;
@@ -337,22 +339,24 @@ void Game::initLevel1() {
 	levelText.bottom = 300;
 	subText1.top = 310;
 	subText1.bottom = 360;
-	playerBullets = new Bullet[MAX_BULLETS];
-	enemyBullets = new Bullet[MAX_BULLETS];
+	topRight.top = 5;
+	topRight.bottom = 65;
+	topRight.left = 550;
+	topRight.right = 800;
 	playerObject.init(SCREEN_WIDTH/2, SCREEN_HEIGHT*8/10, 0, drawBoundaries["playerBox"], 0, 6);
-	curLevel.init(&enemiesList);
+	curLevel.init(&enemiesList, level, spellcards_);
 	drawBoundaries = curLevel.getBoundaries();
 }
 
 void Game::scrollBackground() {
 	offset++;
-	if (offset >= 1200)
+	if (offset >= 1000)
 		offset = 0;
 	D3DXVECTOR3 bgPos(0,0,0);
 	bgTop.left = 0;
 	bgTop.right = SCREEN_WIDTH;
-	bgTop.top = 1200 - offset;
-	bgTop.bottom = 1200;
+	bgTop.top = 1000 - offset;
+	bgTop.bottom = 1000;
 	gameSprites->Draw(levelBackgroundTexture, &bgTop, NULL, &bgPos, 0xFFFFFFFF);
 	bgBottom.left = 0;
 	bgBottom.right = SCREEN_WIDTH;
@@ -371,6 +375,7 @@ void Game::sceneryParticles() {
 		}
 	}
 	vector<Particle> display = particleHandler.getParticles();
+	// make particles fade in and out according to their lifespan
 	for (int i = 0; i < display.size(); i++) {
 		if (display[i].isActive()) {
 			D3DCOLOR currentColor;
@@ -432,7 +437,7 @@ void Game::drawPlayer() {
 }
 
 void Game::drawPlayerBullets() {
-	for (int i = 0; i < MAX_BULLETS; i++) {
+	for (int i = 0; i < playerBullets.size(); i++) {
 		if (playerBullets[i].isActive()) {
 			if (playerBullets[i].isExploding()) {
 				drawExplosion.left = 0;
@@ -444,7 +449,6 @@ void Game::drawPlayerBullets() {
 				gameSprites->Draw(explosionTexture, &drawExplosion, NULL, &playerBullets[i].getPos(), 0xFFFFFFFF);
 				playerBullets[i].setAnimTime(playerBullets[i].getAnimTime() - 1);
 				if (playerBullets[i].getAnimTime() <= 0) {
-					playerBullets[i].setActive(false);
 					playerBullets[i].setExploding(false);
 					playerBullets[i].setPos(-100,-100,-100);
 				}
@@ -472,8 +476,12 @@ void Game::drawPlayerBullets() {
 			}
 			resetMatrices();
 			gameSprites->SetTransform(&spriteManip);
-			if (playerBullets[i].getPos(1) < 0)
-				playerBullets[i].setActive(false);
+			if (playerBullets[i].getPos(1) < 0) {
+ 				playerBullets[i].setActive(false);
+				if (!playerBullets[0].isActive())
+  					playerBullets.erase(playerBullets.begin());
+				//int a = 1;
+			}
 		}
 	}
 }
@@ -482,13 +490,15 @@ void Game::drawEnemyBullets() {
 	D3DXVECTOR3 moveRate;
 	double angle; 
 	int startX, startY, bulletType;
-	for (int i = 0; i < MAX_BULLETS; i++) {
+	for (int i = 0; i < enemyBullets.size(); i++) {
 		if (enemyBullets[i].isActive()) {
 			if (enemyBullets[i].inBounds(drawBoundaries["playerBox"], playerObject.getPos(0) + 11, playerObject.getPos(1) + 13) && (!playerObject.isExploding()) && !invincible) {
 				playerObject.setExploding(true);
 				hits++;
-				enemyBullets[i].setActive(false);
+				enemyBullets[i].setPos(-100,-100,-100);
 			}
+			if (curLevel.isClear())
+				enemyBullets[i].setPos(-100, -100, -100);
 			moveRate = enemyBullets[i].getTarget() - enemyBullets[i].getStartPos();
 			D3DXVec3Normalize(&moveRate, &moveRate);
 			angle = atan(moveRate.y/moveRate.x);
@@ -501,10 +511,11 @@ void Game::drawEnemyBullets() {
 				enemyBullets[i].randomSpiral(i, 0.5f, 0.01f);
 			if (enemyBullets[i].getType() == 2)
 				enemyBullets[i].moveSpiral(i, 0.1f, 0.05f, 20.0f);
-			if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < 0 || enemyBullets[i].getPos(0) < 0 || enemyBullets[i].getPos(0) > SCREEN_WIDTH)
+			if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < 0 || enemyBullets[i].getPos(0) < 0 || enemyBullets[i].getPos(0) > SCREEN_WIDTH) {
 				enemyBullets[i].setActive(false);
-			if (curLevel.isClear())
-				enemyBullets[i].setActive(false);
+				if (!enemyBullets[0].isActive())
+					enemyBullets.erase(enemyBullets.begin());
+			}
 			resetMatrices();
 			gameSprites->SetTransform(&spriteManip);
 		}
@@ -523,8 +534,8 @@ void Game::drawEnemy() {
 				gameSprites->Draw(explosionTexture, &drawExplosion, NULL, &enemiesList[i].getPos(), 0xFFFFFFFF);
 				enemiesList[i].setAnimTime(enemiesList[i].getAnimTime() - 1);
 				if (enemiesList[i].getAnimTime() <= 0) {
-					enemiesList[i].setActive(false);
 					enemiesList[i].setExploding(false);
+					enemiesList[i].setActive(false);
 					enemiesList[i].setPos(-100, -100, -100);
 				}
 			}
@@ -544,13 +555,17 @@ void Game::drawEnemy() {
 void Game::checkEnemyHits() {
 	for (int i = 0; i < enemiesList.size(); i++) {
 		if (enemiesList[i].getPos(1) >= 0) { 
-			for (int j = 0; j < MAX_BULLETS; j++) {
+			for (int j = 0; j < playerBullets.size(); j++) {
 				if (enemiesList[i].inBounds(playerBullets[j]) && playerBullets[j].isActive() && !playerBullets[j].isExploding() 
 					&& enemiesList[i].getPos(1) > 0 && !enemiesList[i].isExploding()) {
 					if (enemiesList[i].getLife() <= 0) {
 						enemiesList[i].setExploding(true);
+						score += enemiesList[i].getType()*1000;
 					}
-					else enemiesList[i].setLife(enemiesList[i].getLife()-1);
+					else {
+						enemiesList[i].setLife(enemiesList[i].getLife()-2);
+						score += 1;
+					}
 					playerBullets[j].setExploding(true);
 				}
 			}
@@ -559,6 +574,8 @@ void Game::checkEnemyHits() {
 }
 
 void Game::refreshEnemies() {
+	//if (!enemiesList[0].isActive())
+		//enemiesList.erase(enemiesList.begin());
 	for (int i = 0; i < enemiesList.size(); i++) {
 		if (enemiesList[i].isActive())
 			break;
@@ -600,7 +617,7 @@ void Game::moveEnemies() {
 				case 3: {
 					enemiesList[i].setSpeed(2);
 					enemiesList[i].bossPattern(100, curLevel.getTime());
-					curLevel.boss1Actions(enemyBullets, i);
+					curLevel.boss1Actions(&enemyBullets, i);
 				}
 			}
 		}
@@ -614,12 +631,12 @@ void Game::advance(int i) {
 	enemiesList[i].moveTo(1);
 	if (enemiesList[i].getCooldown() <= 0) {
 		if (enemiesList[i].getType() == 0)
-			enemiesList[i].fire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["greenBullet"], 0, 3);
+			enemiesList[i].fire(&enemyBullets, playerTarget, enemiesList[i].getPos(), enemyBullets.size(), drawBoundaries["greenBullet"], 0, 3);
 		if (enemiesList[i].getType() == 1)
-			enemiesList[i].fire(enemyBullets, playerTarget, enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["purpleBullet"], 0, 3);
+			enemiesList[i].fire(&enemyBullets, playerTarget, enemiesList[i].getPos(), enemyBullets.size(), drawBoundaries["purpleBullet"], 0, 3);
 		if (enemiesList[i].getType() == 3) {
 			for (int j = 0; j < 5; j++) {
-				enemiesList[i].fire(enemyBullets, shot, enemiesList[i].getPos(), MAX_BULLETS, drawBoundaries["purpleBullet"], 0, 3);
+				enemiesList[i].fire(&enemyBullets, shot, enemiesList[i].getPos(), enemyBullets.size(), drawBoundaries["purpleBullet"], 0, 3);
 				shot = rotateVector(shot, PI/6, 1);
 				enemiesList[i].setCooldown(50);
 			}
@@ -632,8 +649,8 @@ void Game::advance(int i) {
 						shot.y = -1;
 					if (j == 1)
 						shot.y = 1;
-					enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, drawBoundaries["redBall"], 1, 3);
+					enemiesList[i].fire(&enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
+						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), enemyBullets.size(), drawBoundaries["redBall"], 1, 3);
 					enemiesList[i].setCooldown(6);
 				}
 			}
@@ -656,8 +673,8 @@ void Game::waiting(int i) {
 		if (enemiesList[i].getCooldown() <= 0) {
 			for (int j = 0; j < 8; j++) {
 				shot = enemiesList[i].aim8Ways(j);
-				enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
-					D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), MAX_BULLETS, drawBoundaries["redBall"], 1, 3);
+				enemiesList[i].fire(&enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1)+10, shot.z), 
+					D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1)+10, 0), enemyBullets.size(), drawBoundaries["redBall"], 1, 3);
 				enemiesList[i].setCooldown(30);
 			}
 				//break;
@@ -671,8 +688,8 @@ void Game::waiting(int i) {
 		if (enemiesList[i].getCooldown() <= 0) {
 			for (int j = 0; j < 3; j++) {	
 				shot = enemiesList[i].aim3Ways(j);
-				enemiesList[i].fire(enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
-						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), MAX_BULLETS, drawBoundaries["largeGreen"], 1, 2);
+				enemiesList[i].fire(&enemyBullets, D3DXVECTOR3(shot.x+enemiesList[i].getPos(0)+10, shot.y+enemiesList[i].getPos(1), shot.z), 
+						D3DXVECTOR3(enemiesList[i].getPos(0)+10, enemiesList[i].getPos(1), 0), enemyBullets.size(), drawBoundaries["largeGreen"], 1, 2);
 			}
 			enemiesList[i].setCooldown(50);	
 		}
