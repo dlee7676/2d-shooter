@@ -1,5 +1,5 @@
 /*game.h
-The core class of the game.  Controls the use of all other classes related to the game.  
+The core class of the game.  Runs the game loop and controls the use of all other classes related to the game.  
 Handles drawing of game objects and game control. */
 
 #ifndef GAME_H
@@ -25,44 +25,60 @@ using namespace std;
 #define SCREEN_HEIGHT 600
 
 #define PI atan(1.0f)*4
-#define MAX_BULLETS 1000
 
 class Game {
 
 private:
-	int screen, menuSelection;
-
+	// the type of screen being shown. Currently 0 = menu, 1 = gameplay.
+	int screen;
+	// pointers to the structures used for Direct3D
 	LPDIRECT3D9 d3d;
 	LPDIRECT3DDEVICE9 pDev;
+	// stores the window handle generated in WinMain
 	HWND hwnd;
 	LPD3DXSPRITE gameSprites;
-
-	// menu
-	LPDIRECT3DTEXTURE9 menuBackgroundTexture;
+	// pointer to the font structure used for drawing text
 	LPD3DXFONT font;
+	// color values for text
 	D3DCOLOR fontColor, fontColor2;
+
+	/* Used in the menu: */
+	// the current selection in the menu
+	int menuSelection;
+	// the background texture for the menu
+	LPDIRECT3DTEXTURE9 menuBackgroundTexture;
+	// coordinates for placing the menu options
 	RECT start, quit;
 
-	// levels
-	LPDIRECT3DTEXTURE9 gameTexture, laserTexture, explosionTexture, levelBackgroundTexture, bulletTexture, greenLaserTexture, enemyTexture;
-
-	D3DXVECTOR3 bgPos, playerTarget;
+	/* Used in the gameplay screen: */
+	// pointers to various textures
+	LPDIRECT3DTEXTURE9 gameTexture, explosionTexture, levelBackgroundTexture, bulletTexture, enemyTexture;
+	// position of the scrolling background
+	D3DXVECTOR3 bgPos;
+	// used to hold the position of the approximate center of the player sprite (where enemies should aim at)
+	D3DXVECTOR3 playerTarget;
+	// matrices for scaling and rotating graphics
 	D3DXMATRIX spriteManip, rotation, scaling, translation1, translation2;
-	RECT bgTop, bgBottom, levelText, subText1, drawExplosion, topRight;
-
+	// coordinates on the screen to show text fields in
+	RECT bgTop, bgBottom, levelText, subText1, topRight;
+	// coordinates for where to draw from the explosions sprite sheet; changes to show different frames of animation
+	RECT drawExplosion;
+	// container for coordinates of sections of the sprite sheet to draw
 	map<string,RECT> drawBoundaries;
-	bool focus, invincible, spellcard1, spellcard2, clear;
-	//Bullet* playerBullets;
-	//Bullet* enemyBullets;
+	// do not handle player hits when this is true
+	bool invincible;
+	// the game elements
 	vector<Bullet> playerBullets, enemyBullets;
 	vector<Enemy> enemiesList, subunits;
 	ParticleSystem particleHandler;
 	GameObject playerObject;
+	// handles the level events
 	Level curLevel;
-	
-	int leveltime, offset, curFrame, curRow, moveRate, fireDirection, hits, score;
-	int curAlpha;
-	double currentT;
+	int curAlpha, curFrame, curRow;
+	// game data
+	int hits, score, level;
+	// position of the scrolling background
+	float offset;
 
 public:
 	void setHwnd(HWND _hwnd);
@@ -70,31 +86,34 @@ public:
 	void gameloop();
 	void render();
 	void handleInput();
+	void updatePositions();
 	void cleanup();
 
 	void initMenuScreen();
-	void initLevel(int level);
+	void initLevel(size_t level);
+	void loadTextures(size_t level);
 	void scrollBackground();
 	void sceneryParticles();
-	void level1Script();
-	void makeEnemy(int x, int y, int z, RECT bounds, int type, int midX, int midY, int endX, int endY, int life, int speed);
 	void drawPlayer();
 	void drawPlayerBullets();
+	void movePlayerBullets();
 	void drawEnemyBullets();
+	void moveEnemyBullets();
+	void rotateBullets(float angle, size_t i);
+	void drawEnemies();
 	void moveEnemies();
-	void drawTitle();
+	void drawGameText();
+	void drawTitle(size_t in, size_t out, size_t end);
 	void drawTextAndNumber(LPCWSTR text, int num, RECT pos, D3DCOLOR fontColor);
-	void drawEnemy();
 	void checkEnemyHits(); 
-	void advance(int i);
-	void waiting(int i);
-	void bossPattern(int i, int interval);
-	void boss1Actions(int i);
+	void advance(size_t i);
+	void waiting(size_t i);
+	void clearEnemiesList();
+	void drawExplosions(GameObject* exploding, float xFactor, float yFactor);
+
+	D3DXMATRIX scale(D3DXMATRIX translation1, D3DXMATRIX translation2, float x, float y, D3DXMATRIX scaling, float xFactor, float yFactor);
+	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, float angle, size_t direction);
 	void resetMatrices();
-	void rotateBullets(double angle, int i);
-	void refreshEnemies();
-	D3DXMATRIX scale(D3DXMATRIX translation1, D3DXMATRIX translation2, int x, int y, D3DXMATRIX scaling, float xFactor, float yFactor);
-	D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction);
 };
 
 #endif
