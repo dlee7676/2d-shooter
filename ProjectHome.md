@@ -1,0 +1,1 @@
+A simple engine for a vertical-scrolling shooter game in the style of the Touhou Project games.
