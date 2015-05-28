@@ -82,7 +82,7 @@ private:
 
 public:
 	void setHwnd(HWND _hwnd);
-	void initd3d();
+	void initGame();
 	void gameloop();
 	void render();
 	void handleInput();

@@ -467,7 +467,7 @@ void Level::level1Script() {
 		makeEnemy(820, 550, 0, boundaries["verticalShot"], 4, -20, 550, -20, 550, 200, 3);	
 	}
 
-	if (leveltime == 6350) {
+	if (leveltime == 6300) {
 		makeEnemy(200,-40, 0, boundaries["aimedShot"], 0, 300, 300, -30, 500, 50, 5);
 		makeEnemy(300, -35, 0, boundaries["aimedShot"], 0, 300, 300, -30, 500, 50, 5);
 		makeEnemy(400, -25, 0, boundaries["aimedShot"], 0, 300, 300, 1000, 500, 50, 5);
@@ -530,7 +530,7 @@ void Level::boss1Actions(vector<Bullet>* enemyBullets, size_t i) {
 	// fire erratically moving bullets (type 3) at less than 4000 life
 	if ((*pEnemies)[i].getLife() < 4000) {
 		if ((*pEnemies)[i].getCooldown() <= 0) {
-			newTarget = (*pEnemies)[i].rotateAim((*pEnemies)[i].getRotateDirection(), PI/(4+rand()%12), 3.0f);
+			newTarget = (*pEnemies)[i].rotateAim((*pEnemies)[i].getRotateDirection(), PI/16, 3.0f);
 			// alternate the colours of the bullets
 			if (leveltime%6 == 0)
 				(*pEnemies)[i].fire(enemyBullets, D3DXVECTOR3(newTarget.x+(*pEnemies)[i].getPos(0)+15, newTarget.y+(*pEnemies)[i].getPos(1)+15,0), 
@@ -550,7 +550,7 @@ void Level::boss1Actions(vector<Bullet>* enemyBullets, size_t i) {
 			else 
 				(*pEnemies)[i].fire(enemyBullets, D3DXVECTOR3(newTarget.x+(*pEnemies)[i].getPos(0)+15, newTarget.y+(*pEnemies)[i].getPos(1)+15,0), 
 					D3DXVECTOR3((*pEnemies)[i].getPos(0)+15,(*pEnemies)[i].getPos(1)+15,0), enemyBullets->size(), boundaries["greenBall"], 3, 3);
-			(*pEnemies)[i].setCooldown(2);
+			(*pEnemies)[i].setCooldown(1);
 		}
 		(*pEnemies)[i].setCooldown((*pEnemies)[i].getCooldown()-1);
 	}

@@ -1,12 +1,12 @@
 #include "game.h"
 
-/* setHwnd(): used to bring the window handle from the main function into the Game object for initializing Direct3D */
+/* void setHwnd(): used to bring the window handle from the main function into the Game object for initializing Direct3D */
 void Game::setHwnd(HWND _hwnd) {
 	hwnd = _hwnd;
 }
 
-/* initd3d(): initializes a Direct3D object */
-void Game::initd3d() {
+/* void initGame(): initializes a Direct3D object */
+void Game::initGame() {
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
 	D3DPRESENT_PARAMETERS d3dpp;
 	// sets the presentation parameters
@@ -32,14 +32,14 @@ void Game::initd3d() {
 	initMenuScreen();
 }
 
-/* gameloop(): function run repeatedly in the message loop, executes drawing code and responds to game controls */
+/* void gameloop(): function run repeatedly in the message loop, executes drawing code and responds to game controls */
 void Game::gameloop() {
 	render();
 	handleInput();
 	updatePositions();
 }
 
-/* handleInput(): contains responses to key presses of the game controls */
+/* void handleInput(): contains responses to key presses of the game controls */
 void Game::handleInput() {
 	// Esc returns to the menu screen from gameplay
 	if (GetAsyncKeyState(VK_ESCAPE) && screen != 0) {
@@ -125,7 +125,7 @@ void Game::handleInput() {
 	}
 }
 
-/* render(): determines the positions of game objects and draws them on the screen. */
+/* void render(): determines the positions of game objects and draws them on the screen. */
 void Game::render() {
 	pDev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0,0,0), 1.0f, 0);
 	pDev->BeginScene();
@@ -164,7 +164,7 @@ void Game::render() {
 	pDev->Present(NULL, NULL, NULL, NULL);
 }
 
-/* updatePositions(): moves the game objects and adds new enemies when needed */
+/* void updatePositions(): moves the game objects and adds new enemies when needed */
 void Game::updatePositions() {
 	// add any new enemies
 	curLevel.runLevel(level);
@@ -178,7 +178,7 @@ void Game::updatePositions() {
 }
 
 
-/* cleanup(): frees the memory associated with the game's objects. */
+/* void cleanup(): frees the memory associated with the game's objects. */
 void Game::cleanup() {
 	d3d->Release();
 	pDev->Release();
@@ -186,7 +186,7 @@ void Game::cleanup() {
 	font->Release();
 }
 
-/* rotateVector(D3DXVECTOR3 vec, double angle, size_t direction): applies a rotation matrix to the x and y coordinates of a vector and returns the result.  
+/* D3DXVECTOR3 rotateVector(D3DXVECTOR3 vec, double angle, size_t direction): applies a rotation matrix to the x and y coordinates of a vector and returns the result.  
 	Parameters: 
 	D3DXVECTOR3 vec - the vector to be rotated
 	double angle - the angle in radians to rotate the vector
@@ -579,7 +579,7 @@ void Game::moveEnemyBullets() {
 		enemyBullets[i].move(0.75*moveRate.x*enemyBullets[i].getSpeed(), 0.75*moveRate.y*enemyBullets[i].getSpeed(), 0); 
 		// apply special movement types to certain bullet types
 		if (enemyBullets[i].getType() == 3)
-			enemyBullets[i].randomSpiral(0.5f, 0.01f, 6.0f);
+			enemyBullets[i].randomSpiral(0.5f, 0.01f, 10.0f);
 		if (enemyBullets[i].getType() == 2)
 			enemyBullets[i].moveSpiral(i%2, 0.1f, 0.05f, 20.0f);
 		if (enemyBullets[i].getPos(1) > 620 || enemyBullets[i].getPos(1) < 0 || enemyBullets[i].getPos(0) < 0 || enemyBullets[i].getPos(0) > SCREEN_WIDTH) {
